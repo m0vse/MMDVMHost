@@ -92,6 +92,8 @@ public:
 
 	void close();
 
+	unsigned short readRSSI();
+
 private:
 	std::string                m_port;
 	unsigned int               m_dmrColorCode;

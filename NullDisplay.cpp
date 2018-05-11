@@ -134,6 +134,14 @@ void CNullDisplay::clearCWInt()
 {
 }
 
+void CNullDisplay::writeSvxlinkInt(int status, const char* message)
+{
+}
+
+void CNullDisplay::clearSvxlinkInt()
+{
+}
+
 void CNullDisplay::close()
 {
 }

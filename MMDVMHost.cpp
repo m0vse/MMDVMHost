@@ -1,4 +1,4 @@
-/*
+#/*
  *   Copyright (C) 2015,2016,2017,2018 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -47,6 +47,8 @@
 #include <cstdio>
 #include <vector>
 
+#include <pty.h>
+
 #if !defined(_WIN32) && !defined(_WIN64)
 #include <sys/types.h>
 #include <unistd.h>
@@ -76,6 +78,7 @@ const char* HEADER1 = "This software is for use on amateur radio networks only,"
 const char* HEADER2 = "it is to be used for educational purposes only. Its use on";
 const char* HEADER3 = "commercial networks is strictly prohibited.";
 const char* HEADER4 = "Copyright(C) 2015-2018 by Jonathan Naylor, G4KLX and others";
+
 
 int main(int argc, char** argv)
 {
@@ -147,6 +150,8 @@ m_dmrNetModeHang(3U),
 m_ysfNetModeHang(3U),
 m_p25NetModeHang(3U),
 m_nxdnNetModeHang(3U),
+m_svxlinkModeHang(3U),
+m_svxlinkPty(),
 m_modeTimer(1000U),
 m_dmrTXTimer(1000U),
 m_cwIdTimer(1000U),
@@ -169,6 +174,7 @@ m_cwCallsign()
 CMMDVMHost::~CMMDVMHost()
 {
 }
+
 
 int CMMDVMHost::run()
 {
@@ -310,6 +316,7 @@ int CMMDVMHost::run()
 
 	in_addr transparentAddress;
 	unsigned int transparentPort = 0U;
+
 	CUDPSocket* transparentSocket = NULL;
 
 	if (m_conf.getTransparentEnabled()) {
@@ -331,6 +338,40 @@ int CMMDVMHost::run()
 			LogWarning("Could not open the Transparent data socket, disabling");
 			delete transparentSocket;
 			transparentSocket = NULL;
+		}
+	}
+
+	in_addr svxlinkAddress;
+	unsigned int svxlinkPort = 0U;
+	unsigned int svxlink_lastmode = MODE_ERROR; // Set dummy mode
+        unsigned char svxlink_lastmessage[200U];
+	unsigned int svxlink_counter= 0U;
+	unsigned short svxlink_rssi = 0U;
+	unsigned int svxlink_count=0U;
+	CUDPSocket* svxlinkSocket = NULL;
+	if (m_conf.getSvxlinkEnabled()) {
+		std::string remoteAddress = m_conf.getSvxlinkRemoteAddress();
+		unsigned int remotePort   = m_conf.getSvxlinkRemotePort();
+		unsigned int localPort    = m_conf.getSvxlinkLocalPort();
+		m_svxlinkModeHang         = m_conf.getSvxlinkModeHang();
+
+
+		LogInfo("Svxlink");
+		LogInfo("    Remote Address: %s", remoteAddress.c_str());
+		LogInfo("    Remote Port: %u", remotePort);
+		LogInfo("    Local Port: %u", localPort);
+		LogInfo("    PTY: %s", m_conf.getSvxlinkPty().c_str());
+
+
+		svxlinkAddress = CUDPSocket::lookup(remoteAddress);
+		svxlinkPort    = remotePort;
+
+		svxlinkSocket = new CUDPSocket(localPort);
+		ret = svxlinkSocket->open();
+		if (!ret) {
+			LogWarning("Could not open the Svxlink data socket, disabling");
+			delete svxlinkSocket;
+			svxlinkSocket = NULL;
 		}
 	}
 
@@ -849,6 +890,114 @@ int CMMDVMHost::run()
 				m_modem->writeTransparentData(data, len);
 		}
 
+
+		if (m_mode == MODE_SVXLINK) {
+			if (m_modem->readRSSI()>svxlink_rssi)
+				svxlink_rssi=m_modem->readRSSI();
+		}
+
+		svxlink_count++;
+
+		if (svxlinkSocket != NULL && svxlink_count == 100U) {
+			svxlink_count=0;
+			in_addr address;
+			unsigned int port = 0U;
+			len = svxlinkSocket->read(data, 200U, address, port);
+			if (len > 0U) {
+				int tx_status=data[len-1];
+				data[len-1]='\0'; // Replace status byte with null;
+				// Status 2 is beacon so short hangtime
+
+	                        if (m_mode == MODE_IDLE) {
+					svxlink_counter=0;
+					svxlink_lastmessage[0]='\0';
+					if (tx_status == 1U)
+						m_modeTimer.setTimeout(m_svxlinkModeHang);
+					else
+						m_modeTimer.setTimeout(2U);
+					svxlink_rssi=0;
+        				setMode(MODE_SVXLINK);
+				}
+
+				if (m_mode == MODE_SVXLINK) {
+					m_modeTimer.start();
+					if (::strcmp((const char *)data,(const char *)svxlink_lastmessage)!=0 || tx_status==0) {
+						if (tx_status == 0U) {
+							int temp_rssi = rssi->interpolate(svxlink_rssi);
+							LogMessage("Svxlink, received RF end of transmission, %d.0 seconds, RSSI: -%u dBm",svxlink_counter,(temp_rssi >=0) ? temp_rssi : -temp_rssi);
+							svxlink_counter=0;
+							svxlink_rssi=0;
+						} else {
+							LogMessage("Svxlink, received RF voice %s from %s",(tx_status==1) ? "transmission" : "ident",data);
+						}
+						m_display->writeSvxlink(tx_status,(const char *)data);
+						::strcpy((char *)svxlink_lastmessage,(const char *)data);
+					}
+					svxlink_counter++;
+
+				} else if (m_mode != MODE_LOCKOUT) {
+					LogWarning("Svxlink data %s received when in mode %u", data, m_mode);
+				}
+			}
+
+			// Write the current mode to SVXLINK
+			if (svxlink_lastmode != m_mode){
+				char sendmode[5];
+				switch (m_mode)
+				{
+					case MODE_IDLE:
+						strcpy(sendmode,"IDLE");
+						break;
+					case MODE_SVXLINK:
+						strcpy(sendmode,"ALOG");
+						break;
+					case MODE_DSTAR:
+						strcpy(sendmode,"DSTR");
+						break;
+					case MODE_YSF:
+						strcpy(sendmode,"YSF ");
+						break;
+					case MODE_DMR:
+						strcpy(sendmode,"DMR ");
+						break;
+					case MODE_P25:
+						strcpy(sendmode,"P25 ");
+						break;
+					case MODE_NXDN:
+						strcpy(sendmode,"NXDN");
+						break;
+					case MODE_ERROR:
+						strcpy(sendmode,"ERR ");
+						break;
+					default:
+						strcpy(sendmode,"TXON"); // Any other modes?
+						break;
+				}
+
+				// Disable SVXLINK for any mode other than IDLE (and MODE_SVXLINK)
+				int ptyint;
+				FILE * ptyfile = NULL;
+				ptyint=open(m_conf.getSvxlinkPty().c_str(),O_APPEND);
+				if (ptyint >= 0) {
+					ptyfile=fopen(m_conf.getSvxlinkPty().c_str(),"a");
+					if (m_mode != MODE_IDLE && m_mode != MODE_SVXLINK) {
+						fprintf(ptyfile,"DISABLE Rx1\n");
+						fprintf(ptyfile,"DISABLE NetRx1\n");
+					}
+					else if (m_conf.getSvxlinkOff()==0) {
+						fprintf(ptyfile,"ENABLE Rx1\n");
+					} else {
+						fprintf(ptyfile,"ENABLE NetRx1\n");
+					}
+					fclose(ptyfile);
+				}
+				LogInfo("Sending mode %s to Svxlink: %s",sendmode,inet_ntoa(svxlinkAddress));
+				svxlinkSocket->write((const unsigned char *)&sendmode, 4, svxlinkAddress, svxlinkPort);
+				svxlink_lastmode=m_mode;
+
+			}
+		}
+
 		unsigned int ms = stopWatch.elapsed();
 		stopWatch.start();
 
@@ -921,6 +1070,7 @@ int CMMDVMHost::run()
 
 	setMode(MODE_IDLE);
 
+
 	m_modem->close();
 	delete m_modem;
 
@@ -966,6 +1116,11 @@ int CMMDVMHost::run()
 	if (transparentSocket != NULL) {
 		transparentSocket->close();
 		delete transparentSocket;
+	}
+
+	if (svxlinkSocket != NULL) {
+		svxlinkSocket->close();
+		delete svxlinkSocket;
 	}
 
 	delete dstar;
@@ -1551,7 +1706,14 @@ void CMMDVMHost::setMode(unsigned char mode)
 		m_modeTimer.stop();
 		m_cwIdTimer.stop();
 		break;
+	case MODE_SVXLINK:
+		LogMessage("Mode set to Svxlink");
+		m_mode = MODE_SVXLINK;
+		// This line "should" set the modem into RSSICAL mode!
+		m_modem->setMode(MODE_SVXLINK);
 
+		m_modeTimer.start();
+		break;
 	default:
 		if (m_dstarNetwork != NULL)
 			m_dstarNetwork->enable(true);
@@ -1578,9 +1740,11 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_cwIdTimer.setTimeout(m_cwIdTime / 4U);
 			m_cwIdTimer.start();
 		}
+		LogMessage("Mode set to Idle");
 		m_display->setIdle();
 		m_mode = MODE_IDLE;
 		m_modeTimer.stop();
 		break;
 	}
+
 }

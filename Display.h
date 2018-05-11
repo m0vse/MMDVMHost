@@ -64,6 +64,9 @@ public:
 	void writeCW();
 	void clearCW();
 
+	void writeSvxlink(int status, const char* message);
+	void clearSvxlink();
+
 	virtual void close() = 0;
 
 	void clock(unsigned int ms);
@@ -93,6 +96,10 @@ protected:
 	virtual void writeP25RSSIInt(unsigned char rssi);
 	virtual void writeP25BERInt(float ber);
 	virtual void clearP25Int() = 0;
+
+  	virtual void writeSvxlinkInt(int status, const char* message) = 0;
+  	virtual void clearSvxlinkInt() = 0;
+
 
 	virtual void writeNXDNInt(const char* source, bool group, unsigned int dest, const char* type) = 0;
 	virtual void writeNXDNRSSIInt(unsigned char rssi);

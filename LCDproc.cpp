@@ -522,6 +522,16 @@ void CLCDproc::clearCWInt()
 {
 }
 
+
+void CLCDproc::writeSvxlinkInt(int status, const char* message)
+{
+}
+
+void CLCDproc::clearSvxlinkInt()
+{
+}
+
+
 void CLCDproc::clockInt(unsigned int ms)
 {
 	m_clockDisplayTimer.clock(ms);

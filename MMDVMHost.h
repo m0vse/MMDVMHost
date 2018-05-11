@@ -63,6 +63,8 @@ private:
   unsigned int   m_ysfNetModeHang;
   unsigned int   m_p25NetModeHang;
   unsigned int   m_nxdnNetModeHang;
+  unsigned int   m_svxlinkModeHang;
+  std::string    m_svxlinkPty;
   CTimer         m_modeTimer;
   CTimer         m_dmrTXTimer;
   CTimer         m_cwIdTimer;

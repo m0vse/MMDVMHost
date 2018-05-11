@@ -298,6 +298,22 @@ void CDisplay::clearNXDN()
 	}
 }
 
+void CDisplay::writeSvxlink(int status, const char* message)
+{
+	m_timer1.start();
+	m_mode1 = MODE_SVXLINK;
+	writeSvxlinkInt(status,message);
+}
+
+void CDisplay::clearSvxlink()
+{
+ 	if (m_timer1.hasExpired()) {
+		clearSvxlinkInt();
+                m_timer1.stop();
+                m_mode1 = MODE_IDLE;
+        }
+}
+
 void CDisplay::writeCW()
 {
 	m_timer1.start();
@@ -338,6 +354,11 @@ void CDisplay::clock(unsigned int ms)
 			break;
 		case MODE_CW:
 			clearCWInt();
+			m_mode1 = MODE_IDLE;
+			m_timer1.stop();
+			break;
+		case MODE_SVXLINK:
+			clearSvxlinkInt();
 			m_mode1 = MODE_IDLE;
 			m_timer1.stop();
 			break;

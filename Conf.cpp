@@ -37,6 +37,7 @@ enum SECTION {
   SECTION_NXDNID_LOOKUP,
   SECTION_MODEM,
   SECTION_TRANSPARENT,
+  SECTION_SVXLINK,
   SECTION_UMP,
   SECTION_DSTAR,
   SECTION_DMR,
@@ -109,6 +110,13 @@ m_transparentEnabled(false),
 m_transparentRemoteAddress(),
 m_transparentRemotePort(0U),
 m_transparentLocalPort(0U),
+m_svxlinkEnabled(false),
+m_svxlinkOff(false),
+m_svxlinkRemoteAddress(),
+m_svxlinkRemotePort(0U),
+m_svxlinkLocalPort(0U),
+m_svxlinkModeHang(3U),
+m_svxlinkPty(),
 m_umpEnabled(false),
 m_umpPort(),
 m_dstarEnabled(false),
@@ -260,6 +268,8 @@ bool CConf::read()
 		  section = SECTION_MODEM;
 	  else if (::strncmp(buffer, "[Transparent Data]", 18U) == 0)
 		  section = SECTION_TRANSPARENT;
+	  else if (::strncmp(buffer, "[svxlink]", 9U) == 0)
+		  section = SECTION_SVXLINK;
 	  else if (::strncmp(buffer, "[UMP]", 5U) == 0)
 		  section = SECTION_UMP;
 	  else if (::strncmp(buffer, "[D-Star]", 8U) == 0)
@@ -439,6 +449,21 @@ bool CConf::read()
 			m_transparentRemotePort = (unsigned int)::atoi(value);
 		else if (::strcmp(key, "LocalPort") == 0)
 			m_transparentLocalPort = (unsigned int)::atoi(value);
+	} else if (section == SECTION_SVXLINK) {
+		if (::strcmp(key, "Enable") == 0)
+			m_svxlinkEnabled = ::atoi(value) == 1;
+		if (::strcmp(key, "Off") == 0)
+			m_svxlinkOff = ::atoi(value) == 1;
+		else if (::strcmp(key, "RemoteAddress") == 0)
+			m_svxlinkRemoteAddress = value;
+		else if (::strcmp(key, "RemotePort") == 0)
+			m_svxlinkRemotePort = (unsigned int)::atoi(value);
+		else if (::strcmp(key, "LocalPort") == 0)
+			m_svxlinkLocalPort = (unsigned int)::atoi(value);
+		else if (::strcmp(key, "ModeHang") == 0)
+			m_svxlinkModeHang = (unsigned int)::atoi(value);
+		else if (::strcmp(key, "COMMAND_PTY") == 0)
+			m_svxlinkPty = value;
 	} else if (section == SECTION_UMP) {
 		if (::strcmp(key, "Enable") == 0)
 			m_umpEnabled = ::atoi(value) == 1;
@@ -730,6 +755,7 @@ bool CConf::read()
 		else if (::strcmp(key, "DimOnIdle") == 0)
 			m_lcdprocDimOnIdle = ::atoi(value) == 1;
 	}
+
   }
 
   ::fclose(fp);
@@ -990,6 +1016,41 @@ unsigned int CConf::getTransparentRemotePort() const
 unsigned int CConf::getTransparentLocalPort() const
 {
 	return m_transparentLocalPort;
+}
+
+bool CConf::getSvxlinkEnabled() const
+{
+	return m_svxlinkEnabled;
+}
+
+bool CConf::getSvxlinkOff() const
+{
+	return m_svxlinkOff;
+}
+
+std::string CConf::getSvxlinkRemoteAddress() const
+{
+	return m_svxlinkRemoteAddress;
+}
+
+unsigned int CConf::getSvxlinkRemotePort() const
+{
+	return m_svxlinkRemotePort;
+}
+
+unsigned int CConf::getSvxlinkLocalPort() const
+{
+	return m_svxlinkLocalPort;
+}
+
+unsigned int CConf::getSvxlinkModeHang() const
+{
+	return m_svxlinkModeHang;
+}
+
+std::string CConf::getSvxlinkPty() const
+{
+	return m_svxlinkPty;
 }
 
 bool CConf::getUMPEnabled() const

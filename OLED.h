@@ -68,6 +68,9 @@ public:
   virtual void writeCWInt();
   virtual void clearCWInt();
 
+  virtual void writeSvxlinkInt(int status, const char* message);
+  virtual void clearSvxlinkInt();
+
   virtual void close();
 
 private:

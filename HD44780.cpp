@@ -1007,6 +1007,14 @@ void CHD44780::clearCWInt()
 	::lcdPuts(m_fd, " Idle");
 }
 
+void CHD44780::writeSvxlinkInt(int status, const char* message)
+{
+}
+
+void CHD44780::clearSvxlinkInt()
+{
+}
+
 void CHD44780::clockInt(unsigned int ms)
 {
 	m_clockDisplayTimer.clock(ms);

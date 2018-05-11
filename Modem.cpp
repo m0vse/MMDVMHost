@@ -78,6 +78,8 @@ const unsigned char MMDVM_SERIAL      = 0x80U;
 
 const unsigned char MMDVM_TRANSPARENT = 0x90U;
 
+const unsigned char MMDVM_RSSI 	      = 0x09U;
+
 const unsigned char MMDVM_DEBUG1      = 0xF1U;
 const unsigned char MMDVM_DEBUG2      = 0xF2U;
 const unsigned char MMDVM_DEBUG3      = 0xF3U;
@@ -87,6 +89,8 @@ const unsigned char MMDVM_DEBUG5      = 0xF5U;
 const unsigned int MAX_RESPONSES = 30U;
 
 const unsigned int BUFFER_LENGTH = 2000U;
+
+unsigned short svxlink_rssi =0U;
 
 
 CModem::CModem(const std::string& port, bool duplex, bool rxInvert, bool txInvert, bool pttInvert, unsigned int txDelay, unsigned int dmrDelay, bool trace, bool debug) :
@@ -268,6 +272,12 @@ void CModem::clock(unsigned int ms)
 	} else {
 		// type == RTM_OK
 		switch (m_buffer[2U]) {
+
+			case MMDVM_RSSI: {
+				svxlink_rssi=m_buffer[3U] << 8 | m_buffer[4U];
+				}
+				break;
+
 			case MMDVM_DSTAR_HEADER: {
 					if (m_trace)
 						CUtils::dump(1U, "RX D-Star Header", m_buffer, m_length);
@@ -1088,8 +1098,6 @@ bool CModem::readVersion()
 					m_hwType = HWT_MMDVM_HS_DUAL_HAT;
 				else if (::memcmp(m_buffer + 4U, "Nano_hotSPOT", 12U) == 0)
 					m_hwType = HWT_NANO_HOTSPOT;
-				else if (::memcmp(m_buffer + 4U, "Nano_DV", 7U) == 0)
-					m_hwType = HWT_NANO_DV;
 				else if (::memcmp(m_buffer + 4U, "MMDVM_HS-", 9U) == 0)
 					m_hwType = HWT_MMDVM_HS;
 
@@ -1468,6 +1476,11 @@ bool CModem::writeDMRShortLC(const unsigned char* lc)
 	// CUtils::dump(1U, "Written", buffer, 12U);
 
 	return m_serial.write(buffer, 12U) == 12;
+}
+
+unsigned short CModem::readRSSI()
+{
+	return svxlink_rssi;
 }
 
 void CModem::printDebug()

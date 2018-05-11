@@ -49,7 +49,7 @@
 #                              CONFIGURATION
 #
 # Full path to DMR ID file, without final slash
-DMRIDPATH=/path/to/DMR/ID/file
+DMRIDPATH=/tmp
 DMRIDFILE=${DMRIDPATH}/DMRIds.dat
 
 # DMR-MARC.net has discontinued real time access. Now they offer a nightly dump instead.
@@ -60,7 +60,7 @@ DATABASEURL='https://www.dmr-marc.net/static/users.csv'
 DMRFILEBACKUP=1
 #
 # Command line to restart MMDVMHost
-RESTARTCOMMAND="systemctl restart mmdvmhost.service"
+RESTARTCOMMAND="systemctl restart mmdvmhost"
 # RESTARTCOMMAND="killall MMDVMHost ; /path/to/MMDVMHost/executable/MMDVMHost /path/to/MMDVM/ini/file/MMDVM.ini"
 
 ###############################################################################

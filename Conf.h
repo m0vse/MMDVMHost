@@ -97,6 +97,15 @@ public:
   unsigned int getTransparentRemotePort() const;
   unsigned int getTransparentLocalPort() const;
 
+  // The Svxlink  section
+  bool         getSvxlinkEnabled() const;
+  bool         getSvxlinkOff() const;
+  std::string  getSvxlinkRemoteAddress() const;
+  unsigned int getSvxlinkLocalPort() const;
+  unsigned int getSvxlinkRemotePort() const;
+  unsigned int getSvxlinkModeHang() const;
+  std::string getSvxlinkPty() const;
+
   // The UMP section
   bool         getUMPEnabled() const;
   std::string  getUMPPort() const;
@@ -302,6 +311,14 @@ private:
   std::string  m_transparentRemoteAddress;
   unsigned int m_transparentRemotePort;
   unsigned int m_transparentLocalPort;
+
+  bool         m_svxlinkEnabled;
+  bool         m_svxlinkOff;
+  std::string  m_svxlinkRemoteAddress;
+  unsigned int m_svxlinkRemotePort;
+  unsigned int m_svxlinkLocalPort;
+  unsigned int m_svxlinkModeHang;
+  std::string  m_svxlinkPty;
 
   bool         m_umpEnabled;
   std::string  m_umpPort;

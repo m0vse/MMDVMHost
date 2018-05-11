@@ -409,6 +409,16 @@ void CTFTSerial::clearCWInt()
 	displayText("IDLE");
 }
 
+
+void CTFTSerial::writeSvxlinkInt(int status, const char* message)
+{
+}
+
+void CTFTSerial::clearSvxlinkInt()
+{
+}
+
+
 void CTFTSerial::close()
 {
 	m_serial->close();
