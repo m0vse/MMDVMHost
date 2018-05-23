@@ -149,6 +149,7 @@ m_fusionEnabled(false),
 m_fusionLowDeviation(false),
 m_fusionRemoteGateway(false),
 m_fusionSelfOnly(false),
+m_fusionTXHang(4U),
 m_fusionSQLEnabled(false),
 m_fusionSQL(0U),
 m_fusionModeHang(10U),
@@ -578,6 +579,8 @@ bool CConf::read()
 			m_fusionRemoteGateway = ::atoi(value) == 1;
 		else if (::strcmp(key, "SelfOnly") == 0)
 			m_fusionSelfOnly = ::atoi(value) == 1;
+		else if (::strcmp(key, "TXHang") == 0)
+			m_fusionTXHang = (unsigned int)::atoi(value);
 		else if (::strcmp(key, "ModeHang") == 0)
 			m_fusionModeHang = (unsigned int)::atoi(value);
 	} else if (section == SECTION_P25) {
@@ -1206,6 +1209,11 @@ bool CConf::getFusionLowDeviation() const
 bool CConf::getFusionRemoteGateway() const
 {
 	return m_fusionRemoteGateway;
+}
+
+unsigned int CConf::getFusionTXHang() const
+{
+	return m_fusionTXHang;
 }
 
 bool CConf::getFusionSelfOnly() const
