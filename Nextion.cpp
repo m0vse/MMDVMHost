@@ -616,7 +616,7 @@ void CNextion::writeNXDNInt(const char* source, bool group, unsigned int dest, c
 
 	if (m_mode != MODE_NXDN) {
 		sendCommand("page NXDN");
-		sendCommandAction(6U);
+		sendCommandAction(7U);
 	}
 
 	char text[30U];
@@ -685,6 +685,37 @@ void CNextion::writeSvxlinkInt(int status, const char* message)
 
 void CNextion::clearSvxlinkInt()
 {
+
+void CNextion::writePOCSAGInt(uint32_t ric, const std::string& message)
+{
+	if (m_mode != MODE_POCSAG) {
+		sendCommand("page POCSAG");
+		sendCommandAction(6U);
+	}
+
+	char text[200U];
+	::sprintf(text, "dim=%u", m_brightness);
+	sendCommand(text);
+
+	::sprintf(text, "t0.txt=\"RIC: %u\"", ric);
+	sendCommand(text);
+	sendCommandAction(132U);
+
+	::sprintf(text, "t1.txt=\"%s\"", message.c_str());
+	sendCommand(text);
+	sendCommandAction(133U);
+
+	m_clockDisplayTimer.stop();
+
+	m_mode = MODE_POCSAG;
+}
+
+void CNextion::clearPOCSAGInt()
+{
+	sendCommand("t0.txt=\"Waiting\"");
+	sendCommandAction(134U);
+	sendCommand("t1.txt=\"\"");
+>>>>>>> upstream/master
 }
 
 void CNextion::writeCWInt()

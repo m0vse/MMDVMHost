@@ -87,6 +87,7 @@ public:
   float        getModemYSFTXLevel() const;
   float        getModemP25TXLevel() const;
   float        getModemNXDNTXLevel() const;
+  float        getModemPOCSAGTXLevel() const;
   std::string  getModemRSSIMappingFile() const;
   bool         getModemTrace() const;
   bool         getModemDebug() const;
@@ -167,6 +168,10 @@ public:
   bool         getNXDNRemoteGateway() const;
   unsigned int getNXDNModeHang() const;
 
+  // The POCSAG section
+  bool         getPOCSAGEnabled() const;
+  unsigned int getPOCSAGFrequency() const;
+
   // The D-Star Network section
   bool         getDStarNetworkEnabled() const;
   std::string  getDStarGatewayAddress() const;
@@ -213,6 +218,15 @@ public:
   unsigned int getNXDNLocalPort() const;
   unsigned int getNXDNNetworkModeHang() const;
   bool         getNXDNNetworkDebug() const;
+
+  // The POCSAG Network section
+  bool         getPOCSAGNetworkEnabled() const;
+  std::string  getPOCSAGGatewayAddress() const;
+  unsigned int getPOCSAGGatewayPort() const;
+  std::string  getPOCSAGLocalAddress() const;
+  unsigned int getPOCSAGLocalPort() const;
+  unsigned int getPOCSAGNetworkModeHang() const;
+  bool         getPOCSAGNetworkDebug() const;
 
   // The TFTSERIAL section
   std::string  getTFTSerialPort() const;
@@ -304,6 +318,7 @@ private:
   float        m_modemYSFTXLevel;
   float        m_modemP25TXLevel;
   float        m_modemNXDNTXLevel;
+  float        m_modemPOCSAGTXLevel;
   std::string  m_modemRSSIMappingFile;
   bool         m_modemTrace;
   bool         m_modemDebug;
@@ -376,6 +391,9 @@ private:
   bool         m_nxdnRemoteGateway;
   unsigned int m_nxdnModeHang;
 
+  bool         m_pocsagEnabled;
+  unsigned int m_pocsagFrequency;
+
   bool         m_dstarNetworkEnabled;
   std::string  m_dstarGatewayAddress;
   unsigned int m_dstarGatewayPort;
@@ -417,6 +435,14 @@ private:
   unsigned int m_nxdnLocalPort;
   unsigned int m_nxdnNetworkModeHang;
   bool         m_nxdnNetworkDebug;
+
+  bool         m_pocsagNetworkEnabled;
+  std::string  m_pocsagGatewayAddress;
+  unsigned int m_pocsagGatewayPort;
+  std::string  m_pocsagLocalAddress;
+  unsigned int m_pocsagLocalPort;
+  unsigned int m_pocsagNetworkModeHang;
+  bool         m_pocsagNetworkDebug;
 
   std::string  m_tftSerialPort;
   unsigned int m_tftSerialBrightness;

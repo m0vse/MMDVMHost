@@ -71,6 +71,9 @@ protected:
   virtual void writeSvxlinkInt(int status, const char* message);
   virtual void clearSvxlinkInt();
 
+  virtual void writePOCSAGInt(uint32_t ric, const std::string& message);
+  virtual void clearPOCSAGInt();
+
   virtual void writeCWInt();
   virtual void clearCWInt();
 

@@ -23,6 +23,8 @@
 
 #include <string>
 
+#include <cstdint>
+
 class CDisplay
 {
 public:
@@ -61,8 +63,10 @@ public:
 	void writeNXDNBER(float ber);
 	void clearNXDN();
 
+	void writePOCSAG(uint32_t ric, const std::string& message);
+	void clearPOCSAG();
+
 	void writeCW();
-	void clearCW();
 
 	void writeSvxlink(int status, const char* message);
 	void clearSvxlink();
@@ -105,6 +109,9 @@ protected:
 	virtual void writeNXDNRSSIInt(unsigned char rssi);
 	virtual void writeNXDNBERInt(float ber);
 	virtual void clearNXDNInt() = 0;
+
+	virtual void writePOCSAGInt(uint32_t ric, const std::string& message) = 0;
+	virtual void clearPOCSAGInt() = 0;
 
 	virtual void writeCWInt() = 0;
 	virtual void clearCWInt() = 0;

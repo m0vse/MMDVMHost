@@ -44,11 +44,13 @@ enum SECTION {
   SECTION_FUSION,
   SECTION_P25,
   SECTION_NXDN,
+  SECTION_POCSAG,
   SECTION_DSTAR_NETWORK,
   SECTION_DMR_NETWORK,
   SECTION_FUSION_NETWORK,
   SECTION_P25_NETWORK,
   SECTION_NXDN_NETWORK,
+  SECTION_POCSAG_NETWORK,
   SECTION_TFTSERIAL,
   SECTION_HD44780,
   SECTION_NEXTION,
@@ -103,6 +105,7 @@ m_modemDMRTXLevel(50.0F),
 m_modemYSFTXLevel(50.0F),
 m_modemP25TXLevel(50.0F),
 m_modemNXDNTXLevel(50.0F),
+m_modemPOCSAGTXLevel(50.0F),
 m_modemRSSIMappingFile(),
 m_modemTrace(false),
 m_modemDebug(false),
@@ -166,6 +169,8 @@ m_nxdnRAN(1U),
 m_nxdnSelfOnly(false),
 m_nxdnRemoteGateway(false),
 m_nxdnModeHang(10U),
+m_pocsagEnabled(false),
+m_pocsagFrequency(0U),
 m_dstarNetworkEnabled(false),
 m_dstarGatewayAddress(),
 m_dstarGatewayPort(0U),
@@ -179,7 +184,7 @@ m_dmrNetworkLocal(0U),
 m_dmrNetworkPassword(),
 m_dmrNetworkOptions(),
 m_dmrNetworkDebug(false),
-m_dmrNetworkJitter(300U),
+m_dmrNetworkJitter(360U),
 m_dmrNetworkSlot1(true),
 m_dmrNetworkSlot2(true),
 m_dmrNetworkModeHang(3U),
@@ -203,6 +208,13 @@ m_nxdnLocalAddress(),
 m_nxdnLocalPort(0U),
 m_nxdnNetworkModeHang(3U),
 m_nxdnNetworkDebug(false),
+m_pocsagNetworkEnabled(false),
+m_pocsagGatewayAddress(),
+m_pocsagGatewayPort(0U),
+m_pocsagLocalAddress(),
+m_pocsagLocalPort(0U),
+m_pocsagNetworkModeHang(3U),
+m_pocsagNetworkDebug(false),
 m_tftSerialPort("/dev/ttyAMA0"),
 m_tftSerialBrightness(50U),
 m_hd44780Rows(2U),
@@ -283,6 +295,8 @@ bool CConf::read()
 		  section = SECTION_P25;
 	  else if (::strncmp(buffer, "[NXDN]", 6U) == 0)
 		  section = SECTION_NXDN;
+	  else if (::strncmp(buffer, "[POCSAG]", 8U) == 0)
+		  section = SECTION_POCSAG;
 	  else if (::strncmp(buffer, "[D-Star Network]", 16U) == 0)
 		  section = SECTION_DSTAR_NETWORK;
 	  else if (::strncmp(buffer, "[DMR Network]", 13U) == 0)
@@ -293,6 +307,8 @@ bool CConf::read()
 		  section = SECTION_P25_NETWORK;
 	  else if (::strncmp(buffer, "[NXDN Network]", 14U) == 0)
 		  section = SECTION_NXDN_NETWORK;
+	  else if (::strncmp(buffer, "[POCSAG Network]", 16U) == 0)
+		  section = SECTION_POCSAG_NETWORK;
 	  else if (::strncmp(buffer, "[TFT Serial]", 12U) == 0)
 		  section = SECTION_TFTSERIAL;
 	  else if (::strncmp(buffer, "[HD44780]", 9U) == 0)
@@ -349,7 +365,7 @@ bool CConf::read()
 			m_daemon = ::atoi(value) == 1;
 	} else if (section == SECTION_INFO) {
 		if (::strcmp(key, "TXFrequency") == 0)
-			m_txFrequency = (unsigned int)::atoi(value);
+			m_pocsagFrequency = m_txFrequency = (unsigned int)::atoi(value);
 		else if (::strcmp(key, "RXFrequency") == 0)
 			m_rxFrequency = (unsigned int)::atoi(value);
 		else if (::strcmp(key, "Power") == 0)
@@ -435,6 +451,8 @@ bool CConf::read()
 			m_modemP25TXLevel = float(::atof(value));
 		else if (::strcmp(key, "NXDNTXLevel") == 0)
 			m_modemNXDNTXLevel = float(::atof(value));
+		else if (::strcmp(key, "POCSAGTXLevel") == 0)
+			m_modemPOCSAGTXLevel = float(::atof(value));
 		else if (::strcmp(key, "RSSIMappingFile") == 0)
 			m_modemRSSIMappingFile = value;
 		else if (::strcmp(key, "Trace") == 0)
@@ -611,6 +629,11 @@ bool CConf::read()
 			m_nxdnRemoteGateway = ::atoi(value) == 1;
 		else if (::strcmp(key, "ModeHang") == 0)
 			m_nxdnModeHang = (unsigned int)::atoi(value);
+	} else if (section == SECTION_POCSAG) {
+		if (::strcmp(key, "Enable") == 0)
+			m_pocsagEnabled = ::atoi(value) == 1;
+		else if (::strcmp(key, "Frequency") == 0)
+			m_pocsagFrequency = (unsigned int)::atoi(value);
 	} else if (section == SECTION_DSTAR_NETWORK) {
 		if (::strcmp(key, "Enable") == 0)
 			m_dstarNetworkEnabled = ::atoi(value) == 1;
@@ -690,6 +713,21 @@ bool CConf::read()
 			m_nxdnNetworkModeHang = (unsigned int)::atoi(value);
 		else if (::strcmp(key, "Debug") == 0)
 			m_nxdnNetworkDebug = ::atoi(value) == 1;
+	} else if (section == SECTION_POCSAG_NETWORK) {
+		if (::strcmp(key, "Enable") == 0)
+			m_pocsagNetworkEnabled = ::atoi(value) == 1;
+		else if (::strcmp(key, "LocalAddress") == 0)
+			m_pocsagLocalAddress = value;
+		else if (::strcmp(key, "LocalPort") == 0)
+			m_pocsagLocalPort = (unsigned int)::atoi(value);
+		else if (::strcmp(key, "GatewayAddress") == 0)
+			m_pocsagGatewayAddress = value;
+		else if (::strcmp(key, "GatewayPort") == 0)
+			m_pocsagGatewayPort = (unsigned int)::atoi(value);
+		else if (::strcmp(key, "ModeHang") == 0)
+			m_pocsagNetworkModeHang = (unsigned int)::atoi(value);
+		else if (::strcmp(key, "Debug") == 0)
+			m_pocsagNetworkDebug = ::atoi(value) == 1;
 	} else if (section == SECTION_TFTSERIAL) {
 		if (::strcmp(key, "Port") == 0)
 			m_tftSerialPort = value;
@@ -984,6 +1022,11 @@ float CConf::getModemP25TXLevel() const
 float CConf::getModemNXDNTXLevel() const
 {
 	return m_modemNXDNTXLevel;
+}
+
+float CConf::getModemPOCSAGTXLevel() const
+{
+	return m_modemPOCSAGTXLevel;
 }
 
 std::string CConf::getModemRSSIMappingFile () const
@@ -1301,6 +1344,16 @@ unsigned int CConf::getNXDNModeHang() const
 	return m_nxdnModeHang;
 }
 
+bool CConf::getPOCSAGEnabled() const
+{
+	return m_pocsagEnabled;
+}
+
+unsigned int CConf::getPOCSAGFrequency() const
+{
+	return m_pocsagFrequency;
+}
+
 bool CConf::getDStarNetworkEnabled() const
 {
 	return m_dstarNetworkEnabled;
@@ -1484,6 +1537,41 @@ unsigned int CConf::getNXDNNetworkModeHang() const
 bool CConf::getNXDNNetworkDebug() const
 {
 	return m_nxdnNetworkDebug;
+}
+
+bool CConf::getPOCSAGNetworkEnabled() const
+{
+	return m_pocsagNetworkEnabled;
+}
+
+std::string CConf::getPOCSAGGatewayAddress() const
+{
+	return m_pocsagGatewayAddress;
+}
+
+unsigned int CConf::getPOCSAGGatewayPort() const
+{
+	return m_pocsagGatewayPort;
+}
+
+std::string CConf::getPOCSAGLocalAddress() const
+{
+	return m_pocsagLocalAddress;
+}
+
+unsigned int CConf::getPOCSAGLocalPort() const
+{
+	return m_pocsagLocalPort;
+}
+
+unsigned int CConf::getPOCSAGNetworkModeHang() const
+{
+	return m_pocsagNetworkModeHang;
+}
+
+bool CConf::getPOCSAGNetworkDebug() const
+{
+	return m_pocsagNetworkDebug;
 }
 
 std::string CConf::getTFTSerialPort() const
