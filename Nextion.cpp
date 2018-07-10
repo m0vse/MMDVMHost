@@ -685,6 +685,7 @@ void CNextion::writeSvxlinkInt(int status, const char* message)
 
 void CNextion::clearSvxlinkInt()
 {
+}
 
 void CNextion::writePOCSAGInt(uint32_t ric, const std::string& message)
 {
@@ -715,7 +716,6 @@ void CNextion::clearPOCSAGInt()
 	sendCommand("t0.txt=\"Waiting\"");
 	sendCommandAction(134U);
 	sendCommand("t1.txt=\"\"");
->>>>>>> upstream/master
 }
 
 void CNextion::writeCWInt()

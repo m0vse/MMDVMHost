@@ -312,6 +312,8 @@ void CDisplay::clearSvxlink()
                 m_timer1.stop();
                 m_mode1 = MODE_IDLE;
         }
+}
+
 void CDisplay::writePOCSAG(uint32_t ric, const std::string& message)
 {
 	m_timer1.start();

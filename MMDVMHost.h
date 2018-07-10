@@ -44,46 +44,7 @@ public:
   int run();
 
 private:
-<<<<<<< HEAD
-  CConf          m_conf;
-  CModem*        m_modem;
-  CDStarNetwork* m_dstarNetwork;
-  CDMRNetwork*   m_dmrNetwork;
-  CYSFNetwork*   m_ysfNetwork;
-  CP25Network*   m_p25Network;
-  CNXDNNetwork*  m_nxdnNetwork;
-  CDisplay*      m_display;
-  CUMP*          m_ump;
-  unsigned char  m_mode;
-  unsigned int   m_dstarRFModeHang;
-  unsigned int   m_dmrRFModeHang;
-  unsigned int   m_ysfRFModeHang;
-  unsigned int   m_p25RFModeHang;
-  unsigned int   m_nxdnRFModeHang;
-  unsigned int   m_dstarNetModeHang;
-  unsigned int   m_dmrNetModeHang;
-  unsigned int   m_ysfNetModeHang;
-  unsigned int   m_p25NetModeHang;
-  unsigned int   m_nxdnNetModeHang;
-  unsigned int   m_svxlinkModeHang;
-  std::string    m_svxlinkPty;
-  CTimer         m_modeTimer;
-  CTimer         m_dmrTXTimer;
-  CTimer         m_cwIdTimer;
-  bool           m_duplex;
-  unsigned int   m_timeout;
-  bool           m_dstarEnabled;
-  bool           m_dmrEnabled;
-  bool           m_ysfEnabled;
-  bool           m_p25Enabled;
-  bool           m_nxdnEnabled;
-  unsigned int   m_cwIdTime;
-  CDMRLookup*    m_dmrLookup;
-  CNXDNLookup*   m_nxdnLookup;
-  std::string    m_callsign;
-  unsigned int   m_id;
-  std::string    m_cwCallsign;
-=======
+
   CConf           m_conf;
   CModem*         m_modem;
   CDStarNetwork*  m_dstarNetwork;
@@ -105,6 +66,8 @@ private:
   unsigned int    m_ysfNetModeHang;
   unsigned int    m_p25NetModeHang;
   unsigned int    m_nxdnNetModeHang;
+  unsigned int    m_svxlinkModeHang;
+  std::string     m_svxlinkPty;
   unsigned int    m_pocsagNetModeHang;
   CTimer          m_modeTimer;
   CTimer          m_dmrTXTimer;
@@ -123,7 +86,6 @@ private:
   std::string     m_callsign;
   unsigned int    m_id;
   std::string     m_cwCallsign;
->>>>>>> upstream/master
 
   void readParams();
   bool createModem();
