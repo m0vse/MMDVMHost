@@ -1013,6 +1013,9 @@ int CMMDVMHost::run()
 					case MODE_NXDN:
 						strcpy(sendmode,"NXDN");
 						break;
+					case MODE_POCSAG:
+						strcpy(sendmode,"PAGE");
+						break;
 					case MODE_ERROR:
 						strcpy(sendmode,"ERR ");
 						break;
