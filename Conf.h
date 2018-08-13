@@ -70,6 +70,8 @@ public:
 
   // The Modem section
   std::string  getModemPort() const;
+  std::string  getModemProtocol() const;
+  unsigned int getModemAddress() const;
   bool         getModemRXInvert() const;
   bool         getModemTXInvert() const;
   bool         getModemPTTInvert() const;
@@ -301,6 +303,8 @@ private:
   unsigned int m_nxdnIdLookupTime;
 
   std::string  m_modemPort;
+  std::string  m_modemProtocol;
+  unsigned int m_modemAddress;
   bool         m_modemRXInvert;
   bool         m_modemTXInvert;
   bool         m_modemPTTInvert;

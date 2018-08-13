@@ -88,6 +88,8 @@ m_dmrIdLookupTime(0U),
 m_nxdnIdLookupFile(),
 m_nxdnIdLookupTime(0U),
 m_modemPort(),
+m_modemProtocol("uart"),
+m_modemAddress(0x22),
 m_modemRXInvert(false),
 m_modemTXInvert(false),
 m_modemPTTInvert(false),
@@ -415,6 +417,10 @@ bool CConf::read()
 	} else if (section == SECTION_MODEM) {
 		if (::strcmp(key, "Port") == 0)
 			m_modemPort = value;
+        else if (::strcmp(key, "Protocol") == 0)
+            m_modemProtocol = value;
+        else if (::strcmp(key, "Address") == 0)
+            m_modemAddress = (unsigned int)::strtoul(value, NULL, 16);
 		else if (::strcmp(key, "RXInvert") == 0)
 			m_modemRXInvert = ::atoi(value) == 1;
 		else if (::strcmp(key, "TXInvert") == 0)
@@ -937,6 +943,16 @@ unsigned int CConf::getNXDNIdLookupTime() const
 std::string CConf::getModemPort() const
 {
 	return m_modemPort;
+}
+
+std::string CConf::getModemProtocol() const
+{
+	return m_modemProtocol;
+}
+
+unsigned int CConf::getModemAddress() const
+{
+	return m_modemAddress;
 }
 
 bool CConf::getModemRXInvert() const
