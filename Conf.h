@@ -99,6 +99,7 @@ public:
   std::string  getTransparentRemoteAddress() const;
   unsigned int getTransparentRemotePort() const;
   unsigned int getTransparentLocalPort() const;
+  unsigned int getTransparentSendFrameType() const;
 
   // The Svxlink  section
   bool         getSvxlinkEnabled() const;
@@ -120,6 +121,7 @@ public:
   std::vector<std::string> getDStarBlackList() const;
   bool         getDStarAckReply() const;
   unsigned int getDStarAckTime() const;
+  bool         getDStarAckMessage() const;
   bool         getDStarErrorReply() const;
   bool         getDStarRemoteGateway() const;
   unsigned int getDStarModeHang() const;
@@ -253,6 +255,7 @@ public:
   bool         getNextionUTC() const;
   unsigned int getNextionIdleBrightness() const;
   unsigned int getNextionScreenLayout() const;
+  bool         getNextionTempInFahrenheit() const;
 
   // The OLED section
   unsigned char  getOLEDType() const;
@@ -331,6 +334,7 @@ private:
   std::string  m_transparentRemoteAddress;
   unsigned int m_transparentRemotePort;
   unsigned int m_transparentLocalPort;
+  unsigned int m_transparentSendFrameType;
 
   bool         m_svxlinkEnabled;
   bool         m_svxlinkOff;
@@ -349,6 +353,7 @@ private:
   std::vector<std::string> m_dstarBlackList;
   bool         m_dstarAckReply;
   unsigned int m_dstarAckTime;
+  bool         m_dstarAckMessage;
   bool         m_dstarErrorReply;
   bool         m_dstarRemoteGateway;
   unsigned int m_dstarModeHang;
@@ -468,7 +473,8 @@ private:
   bool         m_nextionUTC;
   unsigned int m_nextionIdleBrightness;
   unsigned int m_nextionScreenLayout;
-
+  bool         m_nextionTempInFahrenheit;
+  
   unsigned char m_oledType;
   unsigned char m_oledBrightness;
   bool          m_oledInvert;

@@ -122,6 +122,7 @@ m_svxlinkRemotePort(0U),
 m_svxlinkLocalPort(0U),
 m_svxlinkModeHang(3U),
 m_svxlinkPty(),
+m_transparentSendFrameType(0U),
 m_umpEnabled(false),
 m_umpPort(),
 m_dstarEnabled(false),
@@ -130,6 +131,7 @@ m_dstarSelfOnly(false),
 m_dstarBlackList(),
 m_dstarAckReply(true),
 m_dstarAckTime(750U),
+m_dstarAckMessage(false),
 m_dstarErrorReply(true),
 m_dstarRemoteGateway(false),
 m_dstarModeHang(10U),
@@ -235,6 +237,7 @@ m_nextionDisplayClock(false),
 m_nextionUTC(false),
 m_nextionIdleBrightness(20U),
 m_nextionScreenLayout(0U),
+m_nextionTempInFahrenheit(false),
 m_oledType(3U),
 m_oledBrightness(0U),
 m_oledInvert(false),
@@ -474,6 +477,7 @@ bool CConf::read()
 			m_transparentRemotePort = (unsigned int)::atoi(value);
 		else if (::strcmp(key, "LocalPort") == 0)
 			m_transparentLocalPort = (unsigned int)::atoi(value);
+<<<<<<< HEAD
 	} else if (section == SECTION_SVXLINK) {
 		if (::strcmp(key, "Enable") == 0)
 			m_svxlinkEnabled = ::atoi(value) == 1;
@@ -489,6 +493,10 @@ bool CConf::read()
 			m_svxlinkModeHang = (unsigned int)::atoi(value);
 		else if (::strcmp(key, "COMMAND_PTY") == 0)
 			m_svxlinkPty = value;
+=======
+		else if (::strcmp(key, "SendFrameType") == 0)
+			m_transparentSendFrameType = (unsigned int)::atoi(value);
+>>>>>>> upstream/master
 	} else if (section == SECTION_UMP) {
 		if (::strcmp(key, "Enable") == 0)
 			m_umpEnabled = ::atoi(value) == 1;
@@ -520,6 +528,8 @@ bool CConf::read()
 			m_dstarAckReply = ::atoi(value) == 1;
 		else if (::strcmp(key, "AckTime") == 0)
 			m_dstarAckTime = (unsigned int)::atoi(value);
+		else if (::strcmp(key, "AckMessage") == 0)
+			m_dstarAckMessage = ::atoi(value) == 1;
 		else if (::strcmp(key, "ErrorReply") == 0)
 			m_dstarErrorReply = ::atoi(value) == 1;
 		else if (::strcmp(key, "RemoteGateway") == 0)
@@ -779,6 +789,8 @@ bool CConf::read()
 			m_nextionIdleBrightness = (unsigned int)::atoi(value);
 		else if (::strcmp(key, "ScreenLayout") == 0)
 			m_nextionScreenLayout = (unsigned int)::atoi(value);
+		else if (::strcmp(key, "DisplayTempInFahrenheit") == 0)
+			m_nextionTempInFahrenheit = ::atoi(value) == 1;
 	} else if (section == SECTION_OLED) {
 		if (::strcmp(key, "Type") == 0)
 			m_oledType = (unsigned char)::atoi(value);
@@ -1080,6 +1092,7 @@ unsigned int CConf::getTransparentLocalPort() const
 	return m_transparentLocalPort;
 }
 
+<<<<<<< HEAD
 bool CConf::getSvxlinkEnabled() const
 {
 	return m_svxlinkEnabled;
@@ -1113,6 +1126,11 @@ unsigned int CConf::getSvxlinkModeHang() const
 std::string CConf::getSvxlinkPty() const
 {
 	return m_svxlinkPty;
+=======
+unsigned int CConf::getTransparentSendFrameType() const
+{
+	return m_transparentSendFrameType;
+>>>>>>> upstream/master
 }
 
 bool CConf::getUMPEnabled() const
@@ -1153,6 +1171,11 @@ bool CConf::getDStarAckReply() const
 unsigned int CConf::getDStarAckTime() const
 {
 	return m_dstarAckTime;
+}
+
+bool CConf::getDStarAckMessage() const
+{
+	return m_dstarAckMessage;
 }
 
 bool CConf::getDStarErrorReply() const
@@ -1728,4 +1751,9 @@ bool CConf::getLCDprocUTC() const
 bool CConf::getLCDprocDimOnIdle() const
 {
 	return m_lcdprocDimOnIdle;
+}
+
+bool CConf::getNextionTempInFahrenheit() const
+{
+	return m_nextionTempInFahrenheit;
 }

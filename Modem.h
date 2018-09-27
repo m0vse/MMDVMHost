@@ -43,6 +43,7 @@ public:
 	void setLevels(float rxLevel, float cwIdTXLevel, float dstarTXLevel, float dmrTXLevel, float ysfTXLevel, float p25TXLevel, float nxdnTXLevel, float pocsagLevel);
 	void setDMRParams(unsigned int colorCode);
 	void setYSFParams(bool loDev, unsigned int txHang);
+	void setTransparentDataParams(unsigned int sendFrameType);
 
 	bool open();
 
@@ -149,6 +150,7 @@ private:
 	CRingBuffer<unsigned char> m_txPOCSAGData;
 	CRingBuffer<unsigned char> m_rxTransparentData;
 	CRingBuffer<unsigned char> m_txTransparentData;
+	unsigned int               m_sendTransparentDataFrameType;
 	CTimer                     m_statusTimer;
 	CTimer                     m_inactivityTimer;
 	CTimer                     m_playoutTimer;
