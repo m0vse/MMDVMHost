@@ -1,0 +1,382 @@
+g++ -g -O3 -Wall -std=c++0x -pthread -c -o Conf.o Conf.cpp
+Conf.cpp: In member function ‘std::__cxx11::string CConf::getSvxlinkPty() const’:
+Conf.cpp:1131:26: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getUMPEnabled() const
+                          ^
+Conf.cpp:1136:30: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getUMPPort() const
+                              ^
+Conf.cpp:1141:28: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDStarEnabled() const
+                            ^
+Conf.cpp:1146:34: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getDStarModule() const
+                                  ^
+Conf.cpp:1151:29: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDStarSelfOnly() const
+                             ^
+Conf.cpp:1156:50: error: qualified-id in declaration before ‘(’ token
+ std::vector<std::string> CConf::getDStarBlackList() const
+                                                  ^
+Conf.cpp:1161:29: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDStarAckReply() const
+                             ^
+Conf.cpp:1166:36: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDStarAckTime() const
+                                    ^
+Conf.cpp:1171:31: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDStarAckMessage() const
+                               ^
+Conf.cpp:1176:31: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDStarErrorReply() const
+                               ^
+Conf.cpp:1181:34: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDStarRemoteGateway() const
+                                  ^
+Conf.cpp:1186:37: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDStarModeHang() const
+                                     ^
+Conf.cpp:1191:26: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDMREnabled() const
+                          ^
+Conf.cpp:1196:26: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDMRBeacons() const
+                          ^
+Conf.cpp:1201:41: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDMRBeaconInterval() const
+                                         ^
+Conf.cpp:1206:41: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDMRBeaconDuration() const
+                                         ^
+Conf.cpp:1211:29: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDMRId() const
+                             ^
+Conf.cpp:1216:36: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDMRColorCode() const
+                                    ^
+Conf.cpp:1221:27: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDMRSelfOnly() const
+                           ^
+Conf.cpp:1226:33: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDMREmbeddedLCOnly() const
+                                 ^
+Conf.cpp:1231:29: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDMRDumpTAData() const
+                             ^
+Conf.cpp:1236:48: error: qualified-id in declaration before ‘(’ token
+ std::vector<unsigned int> CConf::getDMRPrefixes() const
+                                                ^
+Conf.cpp:1241:49: error: qualified-id in declaration before ‘(’ token
+ std::vector<unsigned int> CConf::getDMRBlackList() const
+                                                 ^
+Conf.cpp:1246:49: error: qualified-id in declaration before ‘(’ token
+ std::vector<unsigned int> CConf::getDMRWhiteList() const
+                                                 ^
+Conf.cpp:1251:56: error: qualified-id in declaration before ‘(’ token
+ std::vector<unsigned int> CConf::getDMRSlot1TGWhiteList() const
+                                                        ^
+Conf.cpp:1256:56: error: qualified-id in declaration before ‘(’ token
+ std::vector<unsigned int> CConf::getDMRSlot2TGWhiteList() const
+                                                        ^
+Conf.cpp:1261:35: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDMRCallHang() const
+                                   ^
+Conf.cpp:1266:33: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDMRTXHang() const
+                                 ^
+Conf.cpp:1271:35: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDMRModeHang() const
+                                   ^
+Conf.cpp:1276:29: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getFusionEnabled() const
+                             ^
+Conf.cpp:1281:34: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getFusionLowDeviation() const
+                                  ^
+Conf.cpp:1286:35: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getFusionRemoteGateway() const
+                                   ^
+Conf.cpp:1291:36: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getFusionTXHang() const
+                                    ^
+Conf.cpp:1296:30: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getFusionSelfOnly() const
+                              ^
+Conf.cpp:1301:32: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getFusionSQLEnabled() const
+                                ^
+Conf.cpp:1306:34: error: qualified-id in declaration before ‘(’ token
+ unsigned char CConf::getFusionSQL() const
+                                  ^
+Conf.cpp:1311:38: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getFusionModeHang() const
+                                      ^
+Conf.cpp:1316:26: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getP25Enabled() const
+                          ^
+Conf.cpp:1321:29: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getP25Id() const
+                             ^
+Conf.cpp:1326:30: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getP25NAC() const
+                              ^
+Conf.cpp:1331:30: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getP25OverrideUID() const
+                              ^
+Conf.cpp:1336:27: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getP25SelfOnly() const
+                           ^
+Conf.cpp:1341:32: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getP25RemoteGateway() const
+                                ^
+Conf.cpp:1346:35: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getP25ModeHang() const
+                                   ^
+Conf.cpp:1351:27: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getNXDNEnabled() const
+                           ^
+Conf.cpp:1356:30: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getNXDNId() const
+                              ^
+Conf.cpp:1361:31: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getNXDNRAN() const
+                               ^
+Conf.cpp:1366:28: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getNXDNSelfOnly() const
+                            ^
+Conf.cpp:1371:33: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getNXDNRemoteGateway() const
+                                 ^
+Conf.cpp:1376:36: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getNXDNModeHang() const
+                                    ^
+Conf.cpp:1381:29: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getPOCSAGEnabled() const
+                             ^
+Conf.cpp:1386:39: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getPOCSAGFrequency() const
+                                       ^
+Conf.cpp:1391:35: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDStarNetworkEnabled() const
+                                   ^
+Conf.cpp:1396:42: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getDStarGatewayAddress() const
+                                          ^
+Conf.cpp:1401:40: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDStarGatewayPort() const
+                                        ^
+Conf.cpp:1406:38: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDStarLocalPort() const
+                                      ^
+Conf.cpp:1411:44: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDStarNetworkModeHang() const
+                                            ^
+Conf.cpp:1416:33: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDStarNetworkDebug() const
+                                 ^
+Conf.cpp:1421:33: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDMRNetworkEnabled() const
+                                 ^
+Conf.cpp:1426:40: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getDMRNetworkAddress() const
+                                        ^
+Conf.cpp:1431:38: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDMRNetworkPort() const
+                                      ^
+Conf.cpp:1436:39: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDMRNetworkLocal() const
+                                       ^
+Conf.cpp:1441:41: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getDMRNetworkPassword() const
+                                         ^
+Conf.cpp:1446:40: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getDMRNetworkOptions() const
+                                        ^
+Conf.cpp:1451:42: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDMRNetworkModeHang() const
+                                          ^
+Conf.cpp:1456:31: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDMRNetworkDebug() const
+                               ^
+Conf.cpp:1461:40: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getDMRNetworkJitter() const
+                                        ^
+Conf.cpp:1466:31: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDMRNetworkSlot1() const
+                               ^
+Conf.cpp:1471:31: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getDMRNetworkSlot2() const
+                               ^
+Conf.cpp:1476:36: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getFusionNetworkEnabled() const
+                                    ^
+Conf.cpp:1481:45: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getFusionNetworkMyAddress() const
+                                             ^
+Conf.cpp:1486:43: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getFusionNetworkMyPort() const
+                                           ^
+Conf.cpp:1491:50: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getFusionNetworkGatewayAddress() const
+                                                  ^
+Conf.cpp:1496:48: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getFusionNetworkGatewayPort() const
+                                                ^
+Conf.cpp:1501:45: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getFusionNetworkModeHang() const
+                                             ^
+Conf.cpp:1506:34: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getFusionNetworkDebug() const
+                                  ^
+Conf.cpp:1511:33: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getP25NetworkEnabled() const
+                                 ^
+Conf.cpp:1516:40: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getP25GatewayAddress() const
+                                        ^
+Conf.cpp:1521:38: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getP25GatewayPort() const
+                                      ^
+Conf.cpp:1526:36: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getP25LocalPort() const
+                                    ^
+Conf.cpp:1531:42: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getP25NetworkModeHang() const
+                                          ^
+Conf.cpp:1536:31: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getP25NetworkDebug() const
+                               ^
+Conf.cpp:1541:34: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getNXDNNetworkEnabled() const
+                                  ^
+Conf.cpp:1546:41: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getNXDNGatewayAddress() const
+                                         ^
+Conf.cpp:1551:39: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getNXDNGatewayPort() const
+                                       ^
+Conf.cpp:1556:39: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getNXDNLocalAddress() const
+                                       ^
+Conf.cpp:1561:37: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getNXDNLocalPort() const
+                                     ^
+Conf.cpp:1566:43: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getNXDNNetworkModeHang() const
+                                           ^
+Conf.cpp:1571:32: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getNXDNNetworkDebug() const
+                                ^
+Conf.cpp:1576:36: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getPOCSAGNetworkEnabled() const
+                                    ^
+Conf.cpp:1581:43: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getPOCSAGGatewayAddress() const
+                                           ^
+Conf.cpp:1586:41: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getPOCSAGGatewayPort() const
+                                         ^
+Conf.cpp:1591:41: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getPOCSAGLocalAddress() const
+                                         ^
+Conf.cpp:1596:39: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getPOCSAGLocalPort() const
+                                       ^
+Conf.cpp:1601:45: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getPOCSAGNetworkModeHang() const
+                                             ^
+Conf.cpp:1606:34: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getPOCSAGNetworkDebug() const
+                                  ^
+Conf.cpp:1611:36: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getTFTSerialPort() const
+                                    ^
+Conf.cpp:1616:43: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getTFTSerialBrightness() const
+                                           ^
+Conf.cpp:1621:35: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getHD44780Rows() const
+                                   ^
+Conf.cpp:1626:38: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getHD44780Columns() const
+                                      ^
+Conf.cpp:1631:48: error: qualified-id in declaration before ‘(’ token
+ std::vector<unsigned int> CConf::getHD44780Pins() const
+                                                ^
+Conf.cpp:1636:41: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getHD44780i2cAddress() const
+                                         ^
+Conf.cpp:1641:26: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getHD44780PWM() const
+                          ^
+Conf.cpp:1646:37: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getHD44780PWMPin() const
+                                     ^
+Conf.cpp:1651:40: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getHD44780PWMBright() const
+                                        ^
+Conf.cpp:1656:37: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getHD44780PWMDim() const
+                                     ^
+Conf.cpp:1661:35: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getHD44780DisplayClock() const
+                                   ^
+Conf.cpp:1666:26: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getHD44780UTC() const
+                          ^
+Conf.cpp:1671:34: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getNextionPort() const
+                                  ^
+Conf.cpp:1676:41: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getNextionBrightness() const
+                                         ^
+Conf.cpp:1681:35: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getNextionDisplayClock() const
+                                   ^
+Conf.cpp:1686:26: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getNextionUTC() const
+                          ^
+Conf.cpp:1691:45: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getNextionIdleBrightness() const
+                                             ^
+Conf.cpp:1696:43: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getNextionScreenLayout() const
+                                           ^
+Conf.cpp:1701:33: error: qualified-id in declaration before ‘(’ token
+ unsigned char CConf::getOLEDType() const
+                                 ^
+Conf.cpp:1706:39: error: qualified-id in declaration before ‘(’ token
+ unsigned char CConf::getOLEDBrightness() const
+                                       ^
+Conf.cpp:1711:26: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getOLEDInvert() const
+                          ^
+Conf.cpp:1716:26: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getOLEDScroll() const
+                          ^
+Conf.cpp:1721:37: error: qualified-id in declaration before ‘(’ token
+ std::string CConf::getLCDprocAddress() const
+                                     ^
+Conf.cpp:1726:35: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getLCDprocPort() const
+                                   ^
+Conf.cpp:1731:40: error: qualified-id in declaration before ‘(’ token
+ unsigned int CConf::getLCDprocLocalPort() const
+                                        ^
+Conf.cpp:1736:35: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getLCDprocDisplayClock() const
+                                   ^
+Conf.cpp:1741:26: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getLCDprocUTC() const
+                          ^
+Conf.cpp:1746:32: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getLCDprocDimOnIdle() const
+                                ^
+Conf.cpp:1751:39: error: qualified-id in declaration before ‘(’ token
+ bool CConf::getNextionTempInFahrenheit() const
+                                       ^
+Conf.cpp:1754:1: error: expected ‘}’ at end of input
+ }
+ ^
+Makefile:24: recipe for target 'Conf.o' failed
+make: *** [Conf.o] Error 1

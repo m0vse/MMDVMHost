@@ -115,6 +115,7 @@ m_transparentEnabled(false),
 m_transparentRemoteAddress(),
 m_transparentRemotePort(0U),
 m_transparentLocalPort(0U),
+m_transparentSendFrameType(0U),
 m_svxlinkEnabled(false),
 m_svxlinkOff(false),
 m_svxlinkRemoteAddress(),
@@ -122,7 +123,6 @@ m_svxlinkRemotePort(0U),
 m_svxlinkLocalPort(0U),
 m_svxlinkModeHang(3U),
 m_svxlinkPty(),
-m_transparentSendFrameType(0U),
 m_umpEnabled(false),
 m_umpPort(),
 m_dstarEnabled(false),
@@ -477,7 +477,8 @@ bool CConf::read()
 			m_transparentRemotePort = (unsigned int)::atoi(value);
 		else if (::strcmp(key, "LocalPort") == 0)
 			m_transparentLocalPort = (unsigned int)::atoi(value);
-<<<<<<< HEAD
+		else if (::strcmp(key, "SendFrameType") == 0)
+			m_transparentSendFrameType = (unsigned int)::atoi(value);
 	} else if (section == SECTION_SVXLINK) {
 		if (::strcmp(key, "Enable") == 0)
 			m_svxlinkEnabled = ::atoi(value) == 1;
@@ -493,10 +494,6 @@ bool CConf::read()
 			m_svxlinkModeHang = (unsigned int)::atoi(value);
 		else if (::strcmp(key, "COMMAND_PTY") == 0)
 			m_svxlinkPty = value;
-=======
-		else if (::strcmp(key, "SendFrameType") == 0)
-			m_transparentSendFrameType = (unsigned int)::atoi(value);
->>>>>>> upstream/master
 	} else if (section == SECTION_UMP) {
 		if (::strcmp(key, "Enable") == 0)
 			m_umpEnabled = ::atoi(value) == 1;
@@ -1092,7 +1089,11 @@ unsigned int CConf::getTransparentLocalPort() const
 	return m_transparentLocalPort;
 }
 
-<<<<<<< HEAD
+unsigned int CConf::getTransparentSendFrameType() const
+{
+	return m_transparentSendFrameType;
+}
+
 bool CConf::getSvxlinkEnabled() const
 {
 	return m_svxlinkEnabled;
@@ -1126,11 +1127,6 @@ unsigned int CConf::getSvxlinkModeHang() const
 std::string CConf::getSvxlinkPty() const
 {
 	return m_svxlinkPty;
-=======
-unsigned int CConf::getTransparentSendFrameType() const
-{
-	return m_transparentSendFrameType;
->>>>>>> upstream/master
 }
 
 bool CConf::getUMPEnabled() const
