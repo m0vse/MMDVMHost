@@ -1029,12 +1029,12 @@ int CMMDVMHost::run()
 					ptyfile=fopen(m_conf.getSvxlinkPty().c_str(),"a");
 					if (m_mode != MODE_IDLE && m_mode != MODE_SVXLINK) {
 						fprintf(ptyfile,"DISABLE Rx1\n");
-						fprintf(ptyfile,"DISABLE NetRx1\n");
+						//fprintf(ptyfile,"DISABLE NetRx1\n");
 					}
 					else if (m_conf.getSvxlinkOff()==0) {
 						fprintf(ptyfile,"ENABLE Rx1\n");
 					} else {
-						fprintf(ptyfile,"ENABLE NetRx1\n");
+						//fprintf(ptyfile,"ENABLE NetRx1\n");
 					}
 					fclose(ptyfile);
 				}
