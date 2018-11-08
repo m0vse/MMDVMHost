@@ -623,7 +623,7 @@ bool CDMRSlot::writeModem(unsigned char *data, unsigned int len)
 						logGPSPosition(data);
 					}
 					if (m_network != NULL)
-						m_network->writePosition(m_rfLC->getSrcId(), data);
+						m_network->writeRadioPosition(m_rfLC->getSrcId(), data);
 					break;
 
 				case FLCO_TALKER_ALIAS_HEADER:
@@ -825,8 +825,6 @@ bool CDMRSlot::writeModem(unsigned char *data, unsigned int len)
 				if (m_rfN > 5U)
 					return false;
 				if (m_rfN == m_lastrfN)
-					return false;
-				if (m_rfN != (m_lastrfN + 1U))
 					return false;
 				m_lastrfN = m_rfN;
 

@@ -56,7 +56,8 @@ enum SECTION {
   SECTION_NEXTION,
   SECTION_OLED,
   SECTION_LCDPROC,
-  SECTION_TGREWRITE
+  SECTION_LOCK_FILE,
+  SECTION_MOBILE_GPS
 };
 
 CConf::CConf(const std::string& file) :
@@ -242,11 +243,18 @@ m_oledType(3U),
 m_oledBrightness(0U),
 m_oledInvert(false),
 m_oledScroll(false),
+m_oledRotate(false),
+m_oledCast(false),
 m_lcdprocAddress(),
 m_lcdprocPort(0U),
 m_lcdprocLocalPort(0U),
 m_lcdprocDisplayClock(false),
-m_lcdprocUTC(false)
+m_lcdprocUTC(false),
+m_lockFileEnabled(false),
+m_lockFileName(),
+m_mobileGPSEnabled(false),
+m_mobileGPSAddress(),
+m_mobileGPSPort(0U)
 {
 }
 
@@ -324,6 +332,10 @@ bool CConf::read()
 		  section = SECTION_OLED;
 	  else if (::strncmp(buffer, "[LCDproc]", 9U) == 0)
 		  section = SECTION_LCDPROC;
+	  else if (::strncmp(buffer, "[Lock File]", 11U) == 0)
+		  section = SECTION_LOCK_FILE;
+	  else if (::strncmp(buffer, "[Mobile GPS]", 12U) == 0)
+		  section = SECTION_MOBILE_GPS;
 	  else
 		  section = SECTION_NONE;
 
@@ -797,6 +809,10 @@ bool CConf::read()
 			m_oledInvert = ::atoi(value) == 1;
 		else if (::strcmp(key, "Scroll") == 0)
 			m_oledScroll = ::atoi(value) == 1;
+		else if (::strcmp(key, "Rotate") == 0)
+			m_oledRotate = ::atoi(value) == 1;
+		else if (::strcmp(key, "Cast") == 0)
+			m_oledCast = ::atoi(value) == 1;
 	} else if (section == SECTION_LCDPROC) {
 		if (::strcmp(key, "Address") == 0)
 			m_lcdprocAddress = value;
@@ -810,6 +826,18 @@ bool CConf::read()
 			m_lcdprocUTC = ::atoi(value) == 1;
 		else if (::strcmp(key, "DimOnIdle") == 0)
 			m_lcdprocDimOnIdle = ::atoi(value) == 1;
+	} else if (section == SECTION_LOCK_FILE) {
+		if (::strcmp(key, "Enable") == 0)
+			m_lockFileEnabled = ::atoi(value) == 1;
+		else if (::strcmp(key, "File") == 0)
+			m_lockFileName = value;
+	} else if (section == SECTION_MOBILE_GPS) {
+		if (::strcmp(key, "Enable") == 0)
+			m_mobileGPSEnabled = ::atoi(value) == 1;
+		else if (::strcmp(key, "Address") == 0)
+			m_mobileGPSAddress = value;
+		else if (::strcmp(key, "Port") == 0)
+			m_mobileGPSPort = (unsigned int)::atoi(value);
 	}
 
   }
@@ -1719,6 +1747,16 @@ bool CConf::getOLEDScroll() const
 	return m_oledScroll;
 }
 
+bool CConf::getOLEDRotate() const
+{
+	return m_oledRotate;
+}
+
+bool CConf::getOLEDCast() const
+{
+	return m_oledCast;
+}
+
 std::string CConf::getLCDprocAddress() const
 {
 	return m_lcdprocAddress;
@@ -1753,3 +1791,29 @@ bool CConf::getNextionTempInFahrenheit() const
 {
 	return m_nextionTempInFahrenheit;
 }
+
+bool CConf::getLockFileEnabled() const
+{
+	return m_lockFileEnabled;
+}
+
+std::string CConf::getLockFileName() const
+{
+	return m_lockFileName;
+}
+
+bool CConf::getMobileGPSEnabled() const
+{
+	return m_mobileGPSEnabled;
+}
+
+std::string CConf::getMobileGPSAddress() const
+{
+	return m_mobileGPSAddress;
+}
+
+unsigned int CConf::getMobileGPSPort() const
+{
+	return m_mobileGPSPort;
+}
+

@@ -262,6 +262,8 @@ public:
   unsigned char  getOLEDBrightness() const;
   bool           getOLEDInvert() const;
   bool           getOLEDScroll() const;
+  bool           getOLEDRotate() const;
+  bool           getOLEDCast() const;
 
   // The LCDproc section
   std::string  getLCDprocAddress() const;
@@ -270,6 +272,15 @@ public:
   bool         getLCDprocDisplayClock() const;
   bool         getLCDprocUTC() const;
   bool         getLCDprocDimOnIdle() const;
+
+  // The Lock File section
+  bool         getLockFileEnabled() const;
+  std::string  getLockFileName() const;
+
+  // The Mobile GPS section
+  bool         getMobileGPSEnabled() const;
+  std::string  getMobileGPSAddress() const;
+  unsigned int getMobileGPSPort() const;
 
 private:
   std::string  m_file;
@@ -479,6 +490,8 @@ private:
   unsigned char m_oledBrightness;
   bool          m_oledInvert;
   bool          m_oledScroll;
+  bool          m_oledRotate;
+  bool          m_oledCast;
 
   std::string  m_lcdprocAddress;
   unsigned int m_lcdprocPort;
@@ -486,6 +499,13 @@ private:
   bool         m_lcdprocDisplayClock;
   bool         m_lcdprocUTC;
   bool         m_lcdprocDimOnIdle;
+
+  bool         m_lockFileEnabled;
+  std::string  m_lockFileName;
+
+  bool         m_mobileGPSEnabled;
+  std::string  m_mobileGPSAddress;
+  unsigned int m_mobileGPSPort;
 };
 
 #endif

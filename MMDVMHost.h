@@ -27,6 +27,7 @@
 #include "P25Network.h"
 #include "DMRNetwork.h"
 #include "DMRLookup.h"
+#include "MobileGPS.h"
 #include "Display.h"
 #include "Timer.h"
 #include "Modem.h"
@@ -34,6 +35,8 @@
 #include "UMP.h"
 
 #include <string>
+
+
 
 class CMMDVMHost
 {
@@ -86,6 +89,9 @@ private:
   std::string     m_callsign;
   unsigned int    m_id;
   std::string     m_cwCallsign;
+  bool            m_lockFileEnabled;
+  std::string     m_lockFileName;
+  CMobileGPS*     m_mobileGPS;
 
   void readParams();
   bool createModem();
@@ -97,6 +103,9 @@ private:
   bool createPOCSAGNetwork();
 
   void setMode(unsigned char mode);
+
+  void createLockFile(const char* mode) const;
+  void removeLockFile() const;
 };
 
 #endif

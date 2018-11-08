@@ -159,7 +159,10 @@ m_dmrLookup(NULL),
 m_nxdnLookup(NULL),
 m_callsign(),
 m_id(0U),
-m_cwCallsign()
+m_cwCallsign(),
+m_lockFileEnabled(false),
+m_lockFileName(),
+m_mobileGPS(NULL)
 {
 }
 
@@ -380,6 +383,15 @@ int CMMDVMHost::run()
 			delete svxlinkSocket;
 			svxlinkSocket = NULL;
 		}
+	}
+	if (m_conf.getLockFileEnabled()) {
+		m_lockFileEnabled = true;
+		m_lockFileName    = m_conf.getLockFileName();
+
+		LogInfo("Lock File Parameters");
+		LogInfo("    Name: %s", m_lockFileName.c_str());
+
+		removeLockFile();
 	}
 
 	if (m_conf.getCWIdEnabled()) {
@@ -616,6 +628,7 @@ int CMMDVMHost::run()
 	while (!m_killed) {
 		bool lockout1 = m_modem->hasLockout();
 		bool lockout2 = false;
+
 		if (m_ump != NULL)
 			lockout2 = m_ump->getLockout();
 		if ((lockout1 || lockout2) && m_mode != MODE_LOCKOUT)
@@ -1079,6 +1092,9 @@ int CMMDVMHost::run()
 		if (m_pocsagNetwork != NULL)
 			m_pocsagNetwork->clock(ms);
 
+		if (m_mobileGPS != NULL)
+			m_mobileGPS->clock(ms);
+
 		m_cwIdTimer.clock(ms);
 		if (m_cwIdTimer.isRunning() && m_cwIdTimer.hasExpired()) {
 			if (m_mode == MODE_IDLE && !m_modem->hasTX()){
@@ -1134,6 +1150,11 @@ int CMMDVMHost::run()
 
 	m_display->close();
 	delete m_display;
+
+	if (m_mobileGPS != NULL) {
+		m_mobileGPS->close();
+		delete m_mobileGPS;
+	}
 
 	if (m_ump != NULL) {
 		m_ump->close();
@@ -1366,6 +1387,24 @@ bool CMMDVMHost::createDMRNetwork()
 		return false;
 	}
 
+	bool mobileGPSEnabled = m_conf.getMobileGPSEnabled();
+	if (mobileGPSEnabled) {
+		std::string mobileGPSAddress = m_conf.getMobileGPSAddress();
+		unsigned int mobileGPSPort   = m_conf.getMobileGPSPort();
+
+		LogInfo("Mobile GPS Parameters");
+		LogInfo("    Address: %s", mobileGPSAddress.c_str());
+		LogInfo("    Port; %u", mobileGPSPort);
+
+		m_mobileGPS = new CMobileGPS(address, port, m_dmrNetwork);
+
+		ret = m_mobileGPS->open();
+		if (!ret) {
+			delete m_mobileGPS;
+			m_mobileGPS = NULL;
+		}
+	}
+
 	m_dmrNetwork->enable(true);
 
 	return true;
@@ -1538,6 +1577,7 @@ void CMMDVMHost::setMode(unsigned char mode)
 		m_mode = MODE_DSTAR;
 		m_modeTimer.start();
 		m_cwIdTimer.stop();
+		createLockFile("D-Star");
 		break;
 
 	case MODE_DMR:
@@ -1561,6 +1601,7 @@ void CMMDVMHost::setMode(unsigned char mode)
 		m_mode = MODE_DMR;
 		m_modeTimer.start();
 		m_cwIdTimer.stop();
+		createLockFile("DMR");
 		break;
 
 	case MODE_YSF:
@@ -1580,6 +1621,7 @@ void CMMDVMHost::setMode(unsigned char mode)
 		m_mode = MODE_YSF;
 		m_modeTimer.start();
 		m_cwIdTimer.stop();
+		createLockFile("System Fusion");
 		break;
 
 	case MODE_P25:
@@ -1599,6 +1641,7 @@ void CMMDVMHost::setMode(unsigned char mode)
 		m_mode = MODE_P25;
 		m_modeTimer.start();
 		m_cwIdTimer.stop();
+		createLockFile("P25");
 		break;
 
 	case MODE_NXDN:
@@ -1618,6 +1661,7 @@ void CMMDVMHost::setMode(unsigned char mode)
 		m_mode = MODE_NXDN;
 		m_modeTimer.start();
 		m_cwIdTimer.stop();
+		createLockFile("NXDN");
 		break;
 
 	case MODE_POCSAG:
@@ -1637,6 +1681,7 @@ void CMMDVMHost::setMode(unsigned char mode)
 		m_mode = MODE_POCSAG;
 		m_modeTimer.start();
 		m_cwIdTimer.stop();
+		createLockFile("POCSAG");
 		break;
 
 	case MODE_LOCKOUT:
@@ -1664,6 +1709,7 @@ void CMMDVMHost::setMode(unsigned char mode)
 		m_mode = MODE_LOCKOUT;
 		m_modeTimer.stop();
 		m_cwIdTimer.stop();
+		removeLockFile();
 		break;
 
 	case MODE_ERROR:
@@ -1690,6 +1736,7 @@ void CMMDVMHost::setMode(unsigned char mode)
 		m_mode = MODE_ERROR;
 		m_modeTimer.stop();
 		m_cwIdTimer.stop();
+		removeLockFile();
 		break;
 	case MODE_SVXLINK:
 		LogMessage("Mode set to Svxlink");
@@ -1729,12 +1776,30 @@ void CMMDVMHost::setMode(unsigned char mode)
 		}
 		LogMessage("Mode set to Idle");
 		m_display->setIdle();
-		if (mode==MODE_QUIT) {
+		if (mode == MODE_QUIT)
 			m_display->setQuit();
-		}
 		m_mode = MODE_IDLE;
 		m_modeTimer.stop();
+		removeLockFile();
 		break;
 	}
 
 }
+
+void  CMMDVMHost::createLockFile(const char* mode) const
+{
+	if (m_lockFileEnabled) {
+		FILE* fp = ::fopen(m_lockFileName.c_str(), "wt");
+		if (fp != NULL) {
+			::fprintf(fp, "%s\n", mode);
+			::fclose(fp);
+		}
+	}
+}
+
+void  CMMDVMHost::removeLockFile() const
+{
+	if (m_lockFileEnabled)
+		::remove(m_lockFileName.c_str());
+}
+
