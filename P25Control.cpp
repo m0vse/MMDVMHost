@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2016,2017,2018 by Jonathan Naylor G4KLX
+*   Copyright (C) 2016-2019 by Jonathan Naylor G4KLX
 *   Copyright (C) 2018 by Bryan Biedenkapp <gatekeep@gmail.com>
 *
 *   This program is free software; you can redistribute it and/or modify
@@ -80,6 +80,7 @@ m_maxRSSI(0U),
 m_minRSSI(0U),
 m_aveRSSI(0U),
 m_rssiCount(0U),
+m_enabled(true),
 m_fp(NULL)
 {
 	assert(display != NULL);
@@ -208,24 +209,9 @@ bool CP25Control::writeModem(unsigned char* data, unsigned int len)
 		m_rssiCount++;
 	}
 
-	if (duid == P25_DUID_HEADER) {
+	if (duid == P25_DUID_LDU1) {
 		if (m_rfState == RS_RF_LISTENING) {
 			m_rfData.reset();
-			bool ret = m_rfData.decodeHeader(data + 2U);
-			if (!ret) {
-				m_lastDUID = duid;
-				return false;
-			}
-
-			LogMessage("P25, received RF header");
-
-			m_lastDUID = duid;
-			return true;
-		}
-	}
-	else if (duid == P25_DUID_LDU1) {
-		if (m_rfState == RS_RF_LISTENING) {
-			//m_rfData.reset();
 			bool ret = m_rfData.decodeLDU1(data + 2U);
 			if (!ret) {
 				m_lastDUID = duid;
@@ -277,11 +263,6 @@ bool CP25Control::writeModem(unsigned char* data, unsigned int len)
 		}
 
 		if (m_rfState == RS_RF_AUDIO) {
-			bool ret = m_rfData.decodeLDU1(data + 2U);
-			if (!ret) {
-				return false;
-			}
-
 			// Regenerate Sync
 			CSync::addP25Sync(data + 2U);
 
@@ -326,11 +307,6 @@ bool CP25Control::writeModem(unsigned char* data, unsigned int len)
 		}
 	} else if (duid == P25_DUID_LDU2) {
 		if (m_rfState == RS_RF_AUDIO) {
-			bool ret = m_rfData.decodeLDU2(data + 2U);
-			if (!ret) {
-				return false;
-			}
-
 			writeNetwork(m_rfLDU, m_lastDUID, false);
 
 			// Regenerate Sync
@@ -1179,4 +1155,29 @@ void CP25Control::closeFile()
 		::fclose(m_fp);
 		m_fp = NULL;
 	}
+}
+
+bool CP25Control::isBusy() const
+{
+	return m_rfState != RS_RF_LISTENING || m_netState != RS_NET_IDLE;
+}
+
+void CP25Control::enable(bool enabled)
+{
+	if (!enabled && m_enabled) {
+		m_queue.clear();
+
+		// Reset the RF section
+		m_rfState = RS_RF_LISTENING;
+		m_rfTimeout.stop();
+		m_rfData.reset();
+
+		// Reset the networking section
+		m_netTimeout.stop();
+		m_networkWatchdog.stop();
+		m_netData.reset();
+		m_netState = RS_NET_IDLE;
+	}
+
+	m_enabled = enabled;
 }

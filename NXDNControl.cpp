@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015,2016,2017,2018 Jonathan Naylor, G4KLX
+ *	Copyright (C) 2015-2019 Jonathan Naylor, G4KLX
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -71,6 +71,7 @@ m_maxRSSI(0U),
 m_minRSSI(0U),
 m_aveRSSI(0U),
 m_rssiCount(0U),
+m_enabled(true),
 m_fp(NULL)
 {
 	assert(display != NULL);
@@ -1080,4 +1081,36 @@ void CNXDNControl::closeFile()
 		::fclose(m_fp);
 		m_fp = NULL;
 	}
+}
+
+bool CNXDNControl::isBusy() const
+{
+	return m_rfState != RS_RF_LISTENING || m_netState != RS_NET_IDLE;
+}
+
+void CNXDNControl::enable(bool enabled)
+{
+	if (!enabled && m_enabled) {
+		m_queue.clear();
+
+		// Reset the RF section
+		m_rfState = RS_RF_LISTENING;
+
+		m_rfMask = 0x00U;
+		m_rfLayer3.reset();
+
+		m_rfTimeoutTimer.stop();
+
+		// Reset the networking section
+		m_netState = RS_NET_IDLE;
+
+		m_netMask = 0x00U;
+		m_netLayer3.reset();
+
+		m_netTimeoutTimer.stop();
+		m_networkWatchdog.stop();
+		m_packetTimer.stop();
+	}
+
+	m_enabled = enabled;
 }

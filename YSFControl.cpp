@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015,2016,2017,2018 Jonathan Naylor, G4KLX
+ *	Copyright (C) 2015-2019 Jonathan Naylor, G4KLX
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -63,6 +63,7 @@ m_maxRSSI(0U),
 m_minRSSI(0U),
 m_aveRSSI(0U),
 m_rssiCount(0U),
+m_enabled(true),
 m_fp(NULL)
 {
 	assert(display != NULL);
@@ -182,6 +183,7 @@ bool CYSFControl::writeModem(unsigned char *data, unsigned int len)
 		}
 	}
 
+#ifdef notdef
 	// Stop repeater packets coming through, unless we're acting as a remote gateway
 	if (m_remoteGateway) {
 		unsigned char mr = m_lastFICH.getMR();
@@ -192,6 +194,7 @@ bool CYSFControl::writeModem(unsigned char *data, unsigned int len)
 		if (mr == YSF_MR_BUSY)
 			return false;
 	}
+#endif
 
 	unsigned char dt = m_lastFICH.getDT();
 
@@ -1315,4 +1318,37 @@ void CYSFControl::processNetCallsigns(const unsigned char* data)
 			LogMessage("YSF, received network data from %10.10s to %10.10s at %10.10s", m_netSource, m_netDest, data + 4U);
 		}
 	}
+}
+
+bool CYSFControl::isBusy() const
+{
+	return m_rfState != RS_RF_LISTENING || m_netState != RS_NET_IDLE;
+}
+
+void CYSFControl::enable(bool enabled)
+{
+	if (!enabled && m_enabled) {
+		m_queue.clear();
+
+		// Reset the RF section
+		m_rfState = RS_RF_LISTENING;
+
+		m_rfTimeoutTimer.stop();
+		m_rfPayload.reset();
+
+		// These variables are free'd by YSFPayload
+		m_rfSource = NULL;
+		m_rfDest   = NULL;
+
+		// Reset the networking section
+		m_netState = RS_NET_IDLE;
+
+		m_netTimeoutTimer.stop();
+		m_networkWatchdog.stop();
+		m_packetTimer.stop();
+
+		m_netPayload.reset();
+	}
+
+	m_enabled = enabled;
 }

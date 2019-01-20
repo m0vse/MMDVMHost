@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2019 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -22,12 +22,6 @@
 #include "Version.h"
 #include "StopWatch.h"
 #include "Defines.h"
-#include "DStarControl.h"
-#include "DMRControl.h"
-#include "YSFControl.h"
-#include "P25Control.h"
-#include "NXDNControl.h"
-#include "POCSAGControl.h"
 #include "Thread.h"
 #include "Log.h"
 #include "GitVersion.h"
@@ -121,6 +115,12 @@ int main(int argc, char** argv)
 CMMDVMHost::CMMDVMHost(const std::string& confFile) :
 m_conf(confFile),
 m_modem(NULL),
+m_dstar(NULL),
+m_dmr(NULL),
+m_ysf(NULL),
+m_p25(NULL),
+m_nxdn(NULL),
+m_pocsag(NULL),
 m_dstarNetwork(NULL),
 m_dmrNetwork(NULL),
 m_ysfNetwork(NULL),
@@ -162,7 +162,9 @@ m_id(0U),
 m_cwCallsign(),
 m_lockFileEnabled(false),
 m_lockFileName(),
-m_mobileGPS(NULL)
+m_mobileGPS(NULL),
+m_remoteControl(NULL),
+m_fixedMode(false)
 {
 }
 
@@ -435,7 +437,6 @@ int CMMDVMHost::run()
 	CStopWatch stopWatch;
 	stopWatch.start();
 
-	CDStarControl* dstar = NULL;
 	if (m_dstarEnabled) {
 		std::string module                 = m_conf.getDStarModule();
 		bool selfOnly                      = m_conf.getDStarSelfOnly();
@@ -460,13 +461,12 @@ int CMMDVMHost::run()
 		if (blackList.size() > 0U)
 			LogInfo("    Black List: %u", blackList.size());
 
-		dstar = new CDStarControl(m_callsign, module, selfOnly, ackReply, ackTime, ackMessage, errorReply, blackList, m_dstarNetwork, m_display, m_timeout, m_duplex, remoteGateway, rssi);
+		m_dstar = new CDStarControl(m_callsign, module, selfOnly, ackReply, ackTime, ackMessage, errorReply, blackList, m_dstarNetwork, m_display, m_timeout, m_duplex, remoteGateway, rssi);
 	}
 
 	CTimer dmrBeaconIntervalTimer(1000U);
 	CTimer dmrBeaconDurationTimer(1000U);
 
-	CDMRControl* dmr = NULL;
 	if (m_dmrEnabled) {
 		unsigned int id             = m_conf.getDMRId();
 		unsigned int colorCode      = m_conf.getDMRColorCode();
@@ -529,12 +529,11 @@ int CMMDVMHost::run()
 			dmrBeaconIntervalTimer.start();
 		}
 
-		dmr = new CDMRControl(id, colorCode, callHang, selfOnly, embeddedLCOnly, dumpTAData, prefixes, blackList, whiteList, slot1TGWhiteList, slot2TGWhiteList, m_timeout, m_modem, m_dmrNetwork, m_display, m_duplex, m_dmrLookup, rssi, jitter);
+		m_dmr = new CDMRControl(id, colorCode, callHang, selfOnly, embeddedLCOnly, dumpTAData, prefixes, blackList, whiteList, slot1TGWhiteList, slot2TGWhiteList, m_timeout, m_modem, m_dmrNetwork, 						m_display, m_duplex, m_dmrLookup, rssi, jitter);
 
 		m_dmrTXTimer.setTimeout(txHang);
 	}
 
-	CYSFControl* ysf = NULL;
 	if (m_ysfEnabled) {
 		bool lowDeviation   = m_conf.getFusionLowDeviation();
 		bool remoteGateway  = m_conf.getFusionRemoteGateway();
@@ -554,11 +553,10 @@ int CMMDVMHost::run()
 			LogInfo("    DSQ Value: %u", sql);
 		LogInfo("    Mode Hang: %us", m_ysfRFModeHang);
 
-		ysf = new CYSFControl(m_callsign, selfOnly, m_ysfNetwork, m_display, m_timeout, m_duplex, lowDeviation, remoteGateway, rssi);
-		ysf->setSQL(sqlEnabled, sql);
+		m_ysf = new CYSFControl(m_callsign, selfOnly, m_ysfNetwork, m_display, m_timeout, m_duplex, lowDeviation, remoteGateway, rssi);
+		m_ysf->setSQL(sqlEnabled, sql);
 	}
 
-	CP25Control* p25 = NULL;
 	if (m_p25Enabled) {
 		unsigned int id    = m_conf.getP25Id();
 		unsigned int nac   = m_conf.getP25NAC();
@@ -575,10 +573,9 @@ int CMMDVMHost::run()
 		LogInfo("    Remote Gateway: %s", remoteGateway ? "yes" : "no");
 		LogInfo("    Mode Hang: %us", m_p25RFModeHang);
 
-		p25 = new CP25Control(nac, id, selfOnly, uidOverride, m_p25Network, m_display, m_timeout, m_duplex, m_dmrLookup, remoteGateway, rssi);
+		m_p25 = new CP25Control(nac, id, selfOnly, uidOverride, m_p25Network, m_display, m_timeout, m_duplex, m_dmrLookup, remoteGateway, rssi);
 	}
 
-	CNXDNControl* nxdn = NULL;
 	if (m_nxdnEnabled) {
 		std::string lookupFile  = m_conf.getNXDNIdLookupFile();
 		unsigned int reloadTime = m_conf.getNXDNIdLookupTime();
@@ -604,24 +601,58 @@ int CMMDVMHost::run()
 		LogInfo("    Remote Gateway: %s", remoteGateway ? "yes" : "no");
 		LogInfo("    Mode Hang: %us", m_nxdnRFModeHang);
 
-		nxdn = new CNXDNControl(ran, id, selfOnly, m_nxdnNetwork, m_display, m_timeout, m_duplex, remoteGateway, m_nxdnLookup, rssi);
+		m_nxdn = new CNXDNControl(ran, id, selfOnly, m_nxdnNetwork, m_display, m_timeout, m_duplex, remoteGateway, m_nxdnLookup, rssi);
 	}
 
 	CTimer pocsagTimer(1000U, 30U);
 
-	CPOCSAGControl* pocsag = NULL;
 	if (m_pocsagEnabled) {
 		unsigned int frequency = m_conf.getPOCSAGFrequency();
 
 		LogInfo("POCSAG RF Parameters");
 		LogInfo("    Frequency: %uHz", frequency);
 
-		pocsag = new CPOCSAGControl(m_pocsagNetwork, m_display);
+		m_pocsag = new CPOCSAGControl(m_pocsagNetwork, m_display);
 
 		pocsagTimer.start();
 	}
 
-	setMode(MODE_IDLE);
+	bool remoteControlEnabled = m_conf.getRemoteControlEnabled();
+	if (remoteControlEnabled) {
+		unsigned int port = m_conf.getRemoteControlPort();
+
+		LogInfo("Remote Control Parameters");
+		LogInfo("    Port; %u", port);
+
+		m_remoteControl = new CRemoteControl(port);
+
+		ret = m_remoteControl->open();
+		if (!ret) {
+			delete m_remoteControl;
+			m_remoteControl = NULL;
+		}
+	}
+
+	// If only one voice mode is enabled, fix to that mode.
+	if (m_dstar != NULL && m_dmr == NULL && m_ysf == NULL && m_p25 == NULL && m_nxdn == NULL && m_pocsag == NULL) {
+		m_fixedMode = true;
+		setMode(MODE_DSTAR);
+	} else if (m_dstar == NULL && m_dmr != NULL && m_ysf == NULL && m_p25 == NULL && m_nxdn == NULL && m_pocsag == NULL) {
+		m_fixedMode = true;
+		setMode(MODE_DMR);
+	} else if (m_dstar == NULL && m_dmr == NULL && m_ysf != NULL && m_p25 == NULL && m_nxdn == NULL && m_pocsag == NULL) {
+		m_fixedMode = true;
+		setMode(MODE_YSF);
+	} else if (m_dstar == NULL && m_dmr == NULL && m_ysf == NULL && m_p25 != NULL && m_nxdn == NULL && m_pocsag == NULL) {
+		m_fixedMode = true;
+		setMode(MODE_P25);
+	} else if (m_dstar == NULL && m_dmr == NULL && m_ysf == NULL && m_p25 == NULL && m_nxdn != NULL && m_pocsag == NULL) {
+		m_fixedMode = true;
+		setMode(MODE_NXDN);
+	} else {
+		m_fixedMode = false;
+		setMode(MODE_IDLE);
+	}
 
 	LogMessage("MMDVMHost-%s is running", VERSION);
 
@@ -654,15 +685,15 @@ int CMMDVMHost::run()
 		bool ret;
 
 		len = m_modem->readDStarData(data);
-		if (dstar != NULL && len > 0U) {
+		if (m_dstar != NULL && len > 0U) {
 			if (m_mode == MODE_IDLE) {
-				bool ret = dstar->writeModem(data, len);
+				bool ret = m_dstar->writeModem(data, len);
 				if (ret) {
 					m_modeTimer.setTimeout(m_dstarRFModeHang);
 					setMode(MODE_DSTAR);
 				}
 			} else if (m_mode == MODE_DSTAR) {
-				dstar->writeModem(data, len);
+				m_dstar->writeModem(data, len);
 				m_modeTimer.start();
 			} else if (m_mode != MODE_LOCKOUT) {
 				LogWarning("D-Star modem data received when in mode %u", m_mode);
@@ -670,10 +701,10 @@ int CMMDVMHost::run()
 		}
 
 		len = m_modem->readDMRData1(data);
-		if (dmr != NULL && len > 0U) {
+		if (m_dmr != NULL && len > 0U) {
 			if (m_mode == MODE_IDLE) {
 				if (m_duplex) {
-					bool ret = dmr->processWakeup(data);
+					bool ret = m_dmr->processWakeup(data);
 					if (ret) {
 						m_modeTimer.setTimeout(m_dmrRFModeHang);
 						setMode(MODE_DMR);
@@ -682,18 +713,18 @@ int CMMDVMHost::run()
 				} else {
 					m_modeTimer.setTimeout(m_dmrRFModeHang);
 					setMode(MODE_DMR);
-					dmr->writeModemSlot1(data, len);
+					m_dmr->writeModemSlot1(data, len);
 					dmrBeaconDurationTimer.stop();
 				}
 			} else if (m_mode == MODE_DMR) {
 				if (m_duplex && !m_modem->hasTX()) {
-					bool ret = dmr->processWakeup(data);
+					bool ret = m_dmr->processWakeup(data);
 					if (ret) {
 						m_modem->writeDMRStart(true);
 						m_dmrTXTimer.start();
 					}
 				} else {
-					bool ret = dmr->writeModemSlot1(data, len);
+					bool ret = m_dmr->writeModemSlot1(data, len);
 					if (ret) {
 						dmrBeaconDurationTimer.stop();
 						m_modeTimer.start();
@@ -707,10 +738,10 @@ int CMMDVMHost::run()
 		}
 
 		len = m_modem->readDMRData2(data);
-		if (dmr != NULL && len > 0U) {
+		if (m_dmr != NULL && len > 0U) {
 			if (m_mode == MODE_IDLE) {
 				if (m_duplex) {
-					bool ret = dmr->processWakeup(data);
+					bool ret = m_dmr->processWakeup(data);
 					if (ret) {
 						m_modeTimer.setTimeout(m_dmrRFModeHang);
 						setMode(MODE_DMR);
@@ -719,18 +750,18 @@ int CMMDVMHost::run()
 				} else {
 					m_modeTimer.setTimeout(m_dmrRFModeHang);
 					setMode(MODE_DMR);
-					dmr->writeModemSlot2(data, len);
+					m_dmr->writeModemSlot2(data, len);
 					dmrBeaconDurationTimer.stop();
 				}
 			} else if (m_mode == MODE_DMR) {
 				if (m_duplex && !m_modem->hasTX()) {
-					bool ret = dmr->processWakeup(data);
+					bool ret = m_dmr->processWakeup(data);
 					if (ret) {
 						m_modem->writeDMRStart(true);
 						m_dmrTXTimer.start();
 					}
 				} else {
-					bool ret = dmr->writeModemSlot2(data, len);
+					bool ret = m_dmr->writeModemSlot2(data, len);
 					if (ret) {
 						dmrBeaconDurationTimer.stop();
 						m_modeTimer.start();
@@ -744,15 +775,15 @@ int CMMDVMHost::run()
 		}
 
 		len = m_modem->readYSFData(data);
-		if (ysf != NULL && len > 0U) {
+		if (m_ysf != NULL && len > 0U) {
 			if (m_mode == MODE_IDLE) {
-				bool ret = ysf->writeModem(data, len);
+				bool ret = m_ysf->writeModem(data, len);
 				if (ret) {
 					m_modeTimer.setTimeout(m_ysfRFModeHang);
 					setMode(MODE_YSF);
 				}
 			} else if (m_mode == MODE_YSF) {
-				ysf->writeModem(data, len);
+				m_ysf->writeModem(data, len);
 				m_modeTimer.start();
 			} else if (m_mode != MODE_LOCKOUT) {
 				LogWarning("System Fusion modem data received when in mode %u", m_mode);
@@ -760,15 +791,15 @@ int CMMDVMHost::run()
 		}
 
 		len = m_modem->readP25Data(data);
-		if (p25 != NULL && len > 0U) {
+		if (m_p25 != NULL && len > 0U) {
 			if (m_mode == MODE_IDLE) {
-				bool ret = p25->writeModem(data, len);
+				bool ret = m_p25->writeModem(data, len);
 				if (ret) {
 					m_modeTimer.setTimeout(m_p25RFModeHang);
 					setMode(MODE_P25);
 				}
 			} else if (m_mode == MODE_P25) {
-				p25->writeModem(data, len);
+				m_p25->writeModem(data, len);
 				m_modeTimer.start();
 			} else if (m_mode != MODE_LOCKOUT) {
 				LogWarning("P25 modem data received when in mode %u", m_mode);
@@ -776,15 +807,15 @@ int CMMDVMHost::run()
 		}
 
 		len = m_modem->readNXDNData(data);
-		if (nxdn != NULL && len > 0U) {
+		if (m_nxdn != NULL && len > 0U) {
 			if (m_mode == MODE_IDLE) {
-				bool ret = nxdn->writeModem(data, len);
+				bool ret = m_nxdn->writeModem(data, len);
 				if (ret) {
 					m_modeTimer.setTimeout(m_nxdnRFModeHang);
 					setMode(MODE_NXDN);
 				}
 			} else if (m_mode == MODE_NXDN) {
-				nxdn->writeModem(data, len);
+				m_nxdn->writeModem(data, len);
 				m_modeTimer.start();
 			} else if (m_mode != MODE_LOCKOUT) {
 				LogWarning("NXDN modem data received when in mode %u", m_mode);
@@ -795,13 +826,15 @@ int CMMDVMHost::run()
 		if (transparentSocket != NULL && len > 0U)
 			transparentSocket->write(data, len, transparentAddress, transparentPort);
 
-		if (m_modeTimer.isRunning() && m_modeTimer.hasExpired())
-			setMode(MODE_IDLE);
+		if (!m_fixedMode) {
+			if (m_modeTimer.isRunning() && m_modeTimer.hasExpired())
+				setMode(MODE_IDLE);
+		}
 
-		if (dstar != NULL) {
+		if (m_dstar != NULL) {
 			ret = m_modem->hasDStarSpace();
 			if (ret) {
-				len = dstar->readModem(data);
+				len = m_dstar->readModem(data);
 				if (len > 0U) {
 					if (m_mode == MODE_IDLE) {
 						m_modeTimer.setTimeout(m_dstarNetModeHang);
@@ -817,10 +850,10 @@ int CMMDVMHost::run()
 			}
 		}
 
-		if (dmr != NULL) {
+		if (m_dmr != NULL) {
 			ret = m_modem->hasDMRSpace1();
 			if (ret) {
-				len = dmr->readModemSlot1(data);
+				len = m_dmr->readModemSlot1(data);
 				if (len > 0U) {
 					if (m_mode == MODE_IDLE) {
 						m_modeTimer.setTimeout(m_dmrNetModeHang);
@@ -842,7 +875,7 @@ int CMMDVMHost::run()
 
 			ret = m_modem->hasDMRSpace2();
 			if (ret) {
-				len = dmr->readModemSlot2(data);
+				len = m_dmr->readModemSlot2(data);
 				if (len > 0U) {
 					if (m_mode == MODE_IDLE) {
 						m_modeTimer.setTimeout(m_dmrNetModeHang);
@@ -863,10 +896,10 @@ int CMMDVMHost::run()
 			}
 		}
 
-		if (ysf != NULL) {
+		if (m_ysf != NULL) {
 			ret = m_modem->hasYSFSpace();
 			if (ret) {
-				len = ysf->readModem(data);
+				len = m_ysf->readModem(data);
 				if (len > 0U) {
 					if (m_mode == MODE_IDLE) {
 						m_modeTimer.setTimeout(m_ysfNetModeHang);
@@ -882,10 +915,10 @@ int CMMDVMHost::run()
 			}
 		}
 
-		if (p25 != NULL) {
+		if (m_p25 != NULL) {
 			ret = m_modem->hasP25Space();
 			if (ret) {
-				len = p25->readModem(data);
+				len = m_p25->readModem(data);
 				if (len > 0U) {
 					if (m_mode == MODE_IDLE) {
 						m_modeTimer.setTimeout(m_p25NetModeHang);
@@ -901,10 +934,10 @@ int CMMDVMHost::run()
 			}
 		}
 
-		if (nxdn != NULL) {
+		if (m_nxdn != NULL) {
 			ret = m_modem->hasNXDNSpace();
 			if (ret) {
-				len = nxdn->readModem(data);
+				len = m_nxdn->readModem(data);
 				if (len > 0U) {
 					if (m_mode == MODE_IDLE) {
 						m_modeTimer.setTimeout(m_nxdnNetModeHang);
@@ -920,10 +953,10 @@ int CMMDVMHost::run()
 			}
 		}
 
-		if (pocsag != NULL) {
+		if (m_pocsag != NULL) {
 			ret = m_modem->hasPOCSAGSpace();
 			if (ret) {
-				len = pocsag->readModem(data);
+				len = m_pocsag->readModem(data);
 				if (len > 0U) {
 					if (m_mode == MODE_IDLE) {
 						m_modeTimer.setTimeout(m_pocsagNetModeHang);
@@ -1058,26 +1091,34 @@ int CMMDVMHost::run()
 			}
 		}
 
+		remoteControl();
+
 		unsigned int ms = stopWatch.elapsed();
 		stopWatch.start();
 
 		m_display->clock(ms);
 
 		m_modem->clock(ms);
-		m_modeTimer.clock(ms);
 
-		if (dstar != NULL)
-			dstar->clock();
-		if (dmr != NULL)
-			dmr->clock();
-		if (ysf != NULL)
-			ysf->clock(ms);
-		if (p25 != NULL)
-			p25->clock(ms);
-		if (nxdn != NULL)
-			nxdn->clock(ms);
-		if (pocsag != NULL)
-			pocsag->clock(ms);
+		if (!m_fixedMode)
+			m_modeTimer.clock(ms);
+
+		if (m_dstar != NULL)
+			m_dstar->clock();
+		if (m_dmr != NULL)
+			m_dmr->clock();
+		if (m_ysf != NULL)
+			m_ysf->clock(ms);
+		if (m_p25 != NULL)
+			m_p25->clock(ms);
+		if (m_nxdn != NULL)
+			m_nxdn->clock(ms);
+		if (m_pocsag != NULL)
+			m_pocsag->clock(ms);
+
+// Need to work out if this is going to be needed?
+//		if (m_svxlink != NULL)
+//			m_svxlink->clock(ms);
 
 		if (m_dstarNetwork != NULL)
 			m_dstarNetwork->clock(ms);
@@ -1202,17 +1243,22 @@ int CMMDVMHost::run()
 		delete transparentSocket;
 	}
 
+	if (m_remoteControl != NULL) {
+		m_remoteControl->close();
+		delete m_remoteControl;
+	}
+
 	if (svxlinkSocket != NULL) {
 		svxlinkSocket->close();
 		delete svxlinkSocket;
 	}
 
-	delete dstar;
-	delete dmr;
-	delete ysf;
-	delete p25;
-	delete nxdn;
-	delete pocsag;
+	delete m_dstar;
+	delete m_dmr;
+	delete m_ysf;
+	delete m_p25;
+	delete m_nxdn;
+	delete m_pocsag;
 
 	return 0;
 }
@@ -1275,7 +1321,7 @@ bool CMMDVMHost::createModem()
 	LogInfo("    RX Frequency: %uHz (%uHz)", rxFrequency, rxFrequency + rxOffset);
 	LogInfo("    TX Frequency: %uHz (%uHz)", txFrequency, txFrequency + txOffset);
 
-	m_modem = new CModem(port, m_duplex, rxInvert, txInvert, pttInvert, txDelay, dmrDelay, trace, debug);
+	m_modem = CModem::createModem(port, m_duplex, rxInvert, txInvert, pttInvert, txDelay, dmrDelay, trace, debug);
 	m_modem->setSerialParams(protocol,address);
 	m_modem->setModeParams(m_dstarEnabled, m_dmrEnabled, m_ysfEnabled, m_p25Enabled, m_nxdnEnabled, m_pocsagEnabled);
 	m_modem->setLevels(rxLevel, cwIdTXLevel, dstarTXLevel, dmrTXLevel, ysfTXLevel, p25TXLevel, nxdnTXLevel, pocsagTXLevel);
@@ -1561,6 +1607,8 @@ void CMMDVMHost::setMode(unsigned char mode)
 
 	switch (mode) {
 	case MODE_DSTAR:
+		if (m_dstarNetwork != NULL)
+			m_dstarNetwork->enable(true);
 		if (m_dmrNetwork != NULL)
 			m_dmrNetwork->enable(false);
 		if (m_ysfNetwork != NULL)
@@ -1571,6 +1619,18 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_nxdnNetwork->enable(false);
 		if (m_pocsagNetwork != NULL)
 			m_pocsagNetwork->enable(false);
+		if (m_dstar != NULL)
+			m_dstar->enable(true);
+		if (m_dmr != NULL)
+			m_dmr->enable(false);
+		if (m_ysf != NULL)
+			m_ysf->enable(false);
+		if (m_p25 != NULL)
+			m_p25->enable(false);
+		if (m_nxdn != NULL)
+			m_nxdn->enable(false);
+		if (m_pocsag != NULL)
+			m_pocsag->enable(false);
 		m_modem->setMode(MODE_DSTAR);
 		if (m_ump != NULL)
 			m_ump->setMode(MODE_DSTAR);
@@ -1583,6 +1643,8 @@ void CMMDVMHost::setMode(unsigned char mode)
 	case MODE_DMR:
 		if (m_dstarNetwork != NULL)
 			m_dstarNetwork->enable(false);
+		if (m_dmrNetwork != NULL)
+			m_dmrNetwork->enable(true);
 		if (m_ysfNetwork != NULL)
 			m_ysfNetwork->enable(false);
 		if (m_p25Network != NULL)
@@ -1591,6 +1653,18 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_nxdnNetwork->enable(false);
 		if (m_pocsagNetwork != NULL)
 			m_pocsagNetwork->enable(false);
+		if (m_dstar != NULL)
+			m_dstar->enable(false);
+		if (m_dmr != NULL)
+			m_dmr->enable(true);
+		if (m_ysf != NULL)
+			m_ysf->enable(false);
+		if (m_p25 != NULL)
+			m_p25->enable(false);
+		if (m_nxdn != NULL)
+			m_nxdn->enable(false);
+		if (m_pocsag != NULL)
+			m_pocsag->enable(false);
 		m_modem->setMode(MODE_DMR);
 		if (m_ump != NULL)
 			m_ump->setMode(MODE_DMR);
@@ -1609,12 +1683,26 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_dstarNetwork->enable(false);
 		if (m_dmrNetwork != NULL)
 			m_dmrNetwork->enable(false);
+		if (m_ysfNetwork != NULL)
+			m_ysfNetwork->enable(true);
 		if (m_p25Network != NULL)
 			m_p25Network->enable(false);
 		if (m_nxdnNetwork != NULL)
 			m_nxdnNetwork->enable(false);
 		if (m_pocsagNetwork != NULL)
 			m_pocsagNetwork->enable(false);
+		if (m_dstar != NULL)
+			m_dstar->enable(false);
+		if (m_dmr != NULL)
+			m_dmr->enable(false);
+		if (m_ysf != NULL)
+			m_ysf->enable(true);
+		if (m_p25 != NULL)
+			m_p25->enable(false);
+		if (m_nxdn != NULL)
+			m_nxdn->enable(false);
+		if (m_pocsag != NULL)
+			m_pocsag->enable(false);
 		m_modem->setMode(MODE_YSF);
 		if (m_ump != NULL)
 			m_ump->setMode(MODE_YSF);
@@ -1631,10 +1719,24 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_dmrNetwork->enable(false);
 		if (m_ysfNetwork != NULL)
 			m_ysfNetwork->enable(false);
+		if (m_p25Network != NULL)
+			m_p25Network->enable(true);
 		if (m_nxdnNetwork != NULL)
 			m_nxdnNetwork->enable(false);
 		if (m_pocsagNetwork != NULL)
 			m_pocsagNetwork->enable(false);
+		if (m_dstar != NULL)
+			m_dstar->enable(false);
+		if (m_dmr != NULL)
+			m_dmr->enable(false);
+		if (m_ysf != NULL)
+			m_ysf->enable(false);
+		if (m_p25 != NULL)
+			m_p25->enable(true);
+		if (m_nxdn != NULL)
+			m_nxdn->enable(false);
+		if (m_pocsag != NULL)
+			m_pocsag->enable(false);
 		m_modem->setMode(MODE_P25);
 		if (m_ump != NULL)
 			m_ump->setMode(MODE_P25);
@@ -1653,8 +1755,22 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_ysfNetwork->enable(false);
 		if (m_p25Network != NULL)
 			m_p25Network->enable(false);
+		if (m_nxdnNetwork != NULL)
+			m_nxdnNetwork->enable(true);
 		if (m_pocsagNetwork != NULL)
 			m_pocsagNetwork->enable(false);
+		if (m_dstar != NULL)
+			m_dstar->enable(false);
+		if (m_dmr != NULL)
+			m_dmr->enable(false);
+		if (m_ysf != NULL)
+			m_ysf->enable(false);
+		if (m_p25 != NULL)
+			m_p25->enable(false);
+		if (m_nxdn != NULL)
+			m_nxdn->enable(true);
+		if (m_pocsag != NULL)
+			m_pocsag->enable(false);
 		m_modem->setMode(MODE_NXDN);
 		if (m_ump != NULL)
 			m_ump->setMode(MODE_NXDN);
@@ -1675,6 +1791,20 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_p25Network->enable(false);
 		if (m_nxdnNetwork != NULL)
 			m_nxdnNetwork->enable(false);
+		if (m_pocsagNetwork != NULL)
+			m_pocsagNetwork->enable(true);
+		if (m_dstar != NULL)
+			m_dstar->enable(false);
+		if (m_dmr != NULL)
+			m_dmr->enable(false);
+		if (m_ysf != NULL)
+			m_ysf->enable(false);
+		if (m_p25 != NULL)
+			m_p25->enable(false);
+		if (m_nxdn != NULL)
+			m_nxdn->enable(false);
+		if (m_pocsag != NULL)
+			m_pocsag->enable(true);
 		m_modem->setMode(MODE_POCSAG);
 		if (m_ump != NULL)
 			m_ump->setMode(MODE_POCSAG);
@@ -1698,6 +1828,18 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_nxdnNetwork->enable(false);
 		if (m_pocsagNetwork != NULL)
 			m_pocsagNetwork->enable(false);
+		if (m_dstar != NULL)
+			m_dstar->enable(false);
+		if (m_dmr != NULL)
+			m_dmr->enable(false);
+		if (m_ysf != NULL)
+			m_ysf->enable(false);
+		if (m_p25 != NULL)
+			m_p25->enable(false);
+		if (m_nxdn != NULL)
+			m_nxdn->enable(false);
+		if (m_pocsag != NULL)
+			m_pocsag->enable(false);
 		if (m_mode == MODE_DMR && m_duplex && m_modem->hasTX()) {
 			m_modem->writeDMRStart(false);
 			m_dmrTXTimer.stop();
@@ -1726,6 +1868,18 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_nxdnNetwork->enable(false);
 		if (m_pocsagNetwork != NULL)
 			m_pocsagNetwork->enable(false);
+		if (m_dstar != NULL)
+			m_dstar->enable(false);
+		if (m_dmr != NULL)
+			m_dmr->enable(false);
+		if (m_ysf != NULL)
+			m_ysf->enable(false);
+		if (m_p25 != NULL)
+			m_p25->enable(false);
+		if (m_nxdn != NULL)
+			m_nxdn->enable(false);
+		if (m_pocsag != NULL)
+			m_pocsag->enable(false);
 		if (m_mode == MODE_DMR && m_duplex && m_modem->hasTX()) {
 			m_modem->writeDMRStart(false);
 			m_dmrTXTimer.stop();
@@ -1759,6 +1913,18 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_nxdnNetwork->enable(true);
 		if (m_pocsagNetwork != NULL)
 			m_pocsagNetwork->enable(true);
+		if (m_dstar != NULL)
+			m_dstar->enable(true);
+		if (m_dmr != NULL)
+			m_dmr->enable(true);
+		if (m_ysf != NULL)
+			m_ysf->enable(true);
+		if (m_p25 != NULL)
+			m_p25->enable(true);
+		if (m_nxdn != NULL)
+			m_nxdn->enable(true);
+		if (m_pocsag != NULL)
+			m_pocsag->enable(true);
 		if (m_mode == MODE_DMR && m_duplex && m_modem->hasTX()) {
 			m_modem->writeDMRStart(false);
 			m_dmrTXTimer.stop();
@@ -1803,3 +1969,82 @@ void  CMMDVMHost::removeLockFile() const
 		::remove(m_lockFileName.c_str());
 }
 
+bool CMMDVMHost::isBusy() const
+{
+	if (m_dstar != NULL && m_dstar->isBusy())
+		return true;
+
+	if (m_dmr != NULL && m_dmr->isBusy())
+		return true;
+
+	if (m_ysf != NULL && m_ysf->isBusy())
+		return true;
+
+	if (m_p25 != NULL && m_p25->isBusy())
+		return true;
+
+	if (m_nxdn != NULL && m_nxdn->isBusy())
+		return true;
+
+	return false;
+}
+
+void CMMDVMHost::remoteControl()
+{
+	if (m_remoteControl == NULL)
+		return;
+
+	REMOTE_COMMAND command = m_remoteControl->getCommand();
+	switch(command) {
+		case RCD_MODE_IDLE:
+			if (m_mode != MODE_IDLE) {
+				m_fixedMode = false;
+				setMode(MODE_IDLE);
+			}
+			break;
+		case RCD_MODE_LOCKOUT:
+			if (m_mode != MODE_LOCKOUT) {
+				m_fixedMode = false;
+				setMode(MODE_LOCKOUT);
+			}
+			break;
+		case RCD_MODE_DSTAR:
+			if (m_dstar != NULL && m_mode != MODE_DSTAR) {
+				m_fixedMode = true;
+				setMode(MODE_DSTAR);
+			}
+			break;
+		case RCD_MODE_DMR:
+			if (m_dmr != NULL && m_mode != MODE_DMR) {
+				m_fixedMode = true;
+				setMode(MODE_DMR);
+			}
+			break;
+		case RCD_MODE_YSF:
+			if (m_ysf != NULL && m_mode != MODE_YSF) {
+				m_fixedMode = true;
+				setMode(MODE_YSF);
+			}
+			break;
+		case RCD_MODE_P25:
+			if (m_p25 != NULL && m_mode != MODE_P25) {
+				m_fixedMode = true;
+				setMode(MODE_P25);
+			}
+			break;
+		case RCD_MODE_NXDN:
+			if (m_nxdn != NULL && m_mode != MODE_NXDN) {
+				m_fixedMode = true;
+				setMode(MODE_NXDN);
+			}
+			break;
+		case RCD_MODE_SVXLINK:
+			if (m_mode != MODE_SVXLINK) {
+				m_fixedMode = true;
+				setMode(MODE_SVXLINK);
+			}
+			break;
+		default:
+			break;
+	}
+}

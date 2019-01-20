@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2019 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -282,6 +282,10 @@ public:
   std::string  getMobileGPSAddress() const;
   unsigned int getMobileGPSPort() const;
 
+  // The Remote Control section
+  bool         getRemoteControlEnabled() const;
+  unsigned int getRemoteControlPort() const;
+
 private:
   std::string  m_file;
   std::string  m_callsign;
@@ -506,6 +510,9 @@ private:
   bool         m_mobileGPSEnabled;
   std::string  m_mobileGPSAddress;
   unsigned int m_mobileGPSPort;
+
+  bool         m_remoteControlEnabled;
+  unsigned int m_remoteControlPort;
 };
 
 #endif

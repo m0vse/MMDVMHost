@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2019 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -46,6 +46,10 @@ public:
 
 	void clock(unsigned int ms);
 
+	bool isBusy() const;
+
+	void enable(bool enabled);
+
 private:
 	unsigned char*             m_callsign;
 	unsigned char*             m_selfCallsign;
@@ -86,6 +90,7 @@ private:
 	unsigned char              m_minRSSI;
 	unsigned int               m_aveRSSI;
 	unsigned int               m_rssiCount;
+	bool                       m_enabled;
 	FILE*                      m_fp;
 
 	bool processVWData(bool valid, unsigned char *data);
