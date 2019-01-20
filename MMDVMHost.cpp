@@ -649,6 +649,9 @@ int CMMDVMHost::run()
 	} else if (m_dstar == NULL && m_dmr == NULL && m_ysf == NULL && m_p25 == NULL && m_nxdn != NULL && m_pocsag == NULL) {
 		m_fixedMode = true;
 		setMode(MODE_NXDN);
+	} else if (m_dstar == NULL && m_dmr == NULL && m_ysf == NULL && m_p25 == NULL && m_nxdn == NULL && m_pocsag == NULL) {
+		m_fixedMode = true;
+		setMode(MODE_SVXLINK);
 	} else {
 		m_fixedMode = false;
 		setMode(MODE_IDLE);
