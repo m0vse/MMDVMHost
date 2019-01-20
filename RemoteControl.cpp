@@ -45,6 +45,7 @@ REMOTE_COMMAND CRemoteControl::getCommand()
 	REMOTE_COMMAND command = RCD_NONE;
 
 	unsigned char buffer[BUFFER_LENGTH];
+	memset(buffer, 0, sizeof(buffer));
 	in_addr address;
 	unsigned int port;
 	int ret = m_socket.read(buffer, BUFFER_LENGTH, address, port);
@@ -67,9 +68,9 @@ REMOTE_COMMAND CRemoteControl::getCommand()
 			command = RCD_MODE_SVXLINK;
 
 		if (command == RCD_NONE)
-			LogWarning("Invalid remote command of \"%s\" received");
+			LogWarning("Invalid remote command of \"%s\" received",buffer);
 		else
-			LogMessage("Valid remote command of \"%s\" received");
+			LogMessage("Valid remote command of \"%s\" received",buffer);
 	}
 	
 	return command;
