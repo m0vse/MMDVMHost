@@ -622,7 +622,7 @@ int CMMDVMHost::run()
 		unsigned int port = m_conf.getRemoteControlPort();
 
 		LogInfo("Remote Control Parameters");
-		LogInfo("    Port; %u", port);
+		LogInfo("    Port: %u", port);
 
 		m_remoteControl = new CRemoteControl(port);
 
@@ -1132,7 +1132,7 @@ int CMMDVMHost::run()
 		dmrBeaconIntervalTimer.clock(ms);
 		if (dmrBeaconIntervalTimer.isRunning() && dmrBeaconIntervalTimer.hasExpired()) {
 			if ((m_mode == MODE_IDLE || m_mode == MODE_DMR) && !m_modem->hasTX()) {
-				if (!m_fixedMode)
+				if (!m_fixedMode && m_mode == MODE_IDLE)
 					setMode(MODE_DMR);
 				dmrBeaconIntervalTimer.start();
 				dmrBeaconDurationTimer.start();
@@ -1423,7 +1423,7 @@ bool CMMDVMHost::createDMRNetwork()
 
 		LogInfo("Mobile GPS Parameters");
 		LogInfo("    Address: %s", mobileGPSAddress.c_str());
-		LogInfo("    Port; %u", mobileGPSPort);
+		LogInfo("    Port: %u", mobileGPSPort);
 
 		m_mobileGPS = new CMobileGPS(address, port, m_dmrNetwork);
 
@@ -1990,6 +1990,17 @@ void CMMDVMHost::remoteControl()
 		case RCD_MODE_SVXLINK:
 			processModeCommand(MODE_SVXLINK, m_svxlinkModeHang);
 			break;
+		case RCD_PAGE:
+			if (m_pocsag != NULL) {
+				unsigned int ric = m_remoteControl->getArgUInt(0U);
+				std::string text;
+				for (unsigned int i = 1U; i < m_remoteControl->getArgCount(); i++) {
+					if (i > 1U)
+						text += " ";
+					text += m_remoteControl->getArgString(i);
+				}
+				m_pocsag->sendPage(ric, text);
+			}
 		default:
 			break;
 	}
