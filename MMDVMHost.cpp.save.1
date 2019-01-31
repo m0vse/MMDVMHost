@@ -1880,7 +1880,7 @@ void CMMDVMHost::setMode(unsigned char mode)
 		m_mode = MODE_SVXLINK;
 		// This line "should" set the modem into RSSICAL mode!
 		m_modem->setMode(MODE_SVXLINK);
-		createLockFile("ALOG");
+
 		m_modeTimer.start();
 		break;
 	default:

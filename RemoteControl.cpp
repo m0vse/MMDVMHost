@@ -110,6 +110,7 @@ unsigned int CRemoteControl::getArgCount() const
 		case RCD_MODE_YSF:
 		case RCD_MODE_P25:
 		case RCD_MODE_NXDN:
+		case RCD_MODE_SVXLINK:
 			return m_args.size() - SET_MODE_ARGS;
 		default:
 			return 0U;
@@ -126,6 +127,7 @@ std::string CRemoteControl::getArgString(unsigned int n) const
 		case RCD_MODE_YSF:
 		case RCD_MODE_P25:
 		case RCD_MODE_NXDN:
+		case RCD_MODE_SVXLINK:
 			n += SET_MODE_ARGS;
 			break;
 		default:
