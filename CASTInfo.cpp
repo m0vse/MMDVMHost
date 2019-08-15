@@ -136,6 +136,16 @@ void CCASTInfo::clearPOCSAGInt()
 {
 }
 
+void CCASTInfo::writeSvxlinkInt(int status, const char* message)
+{
+//    if (m_modem != NULL)
+//        m_modem->writeSvxlinkInfo(status, message);
+}
+
+void CCASTInfo::clearSvxlinkInt()
+{
+}
+
 void CCASTInfo::writeCWInt()
 {
 }
