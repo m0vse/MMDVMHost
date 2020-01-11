@@ -128,7 +128,7 @@ public:
 
   // The DMR section
   bool         getDMREnabled() const;
-  bool         getDMRBeacons() const;
+  DMR_BEACONS  getDMRBeacons() const;
   unsigned int getDMRBeaconInterval() const;
   unsigned int getDMRBeaconDuration() const;
   unsigned int getDMRId() const;
@@ -144,7 +144,7 @@ public:
   unsigned int getDMRCallHang() const;
   unsigned int getDMRTXHang() const;
   unsigned int getDMRModeHang() const;
-  bool         getDMROVCM() const;
+  DMR_OVCM_TYPES getDMROVCM() const;
 
   // The System Fusion section
   bool          getFusionEnabled() const;
@@ -375,7 +375,7 @@ private:
   unsigned int m_dstarModeHang;
 
   bool         m_dmrEnabled;
-  bool         m_dmrBeacons;
+  DMR_BEACONS  m_dmrBeacons;
   unsigned int m_dmrBeaconInterval;
   unsigned int m_dmrBeaconDuration;
   unsigned int m_dmrId;
@@ -391,7 +391,7 @@ private:
   unsigned int m_dmrCallHang;
   unsigned int m_dmrTXHang;
   unsigned int m_dmrModeHang;
-  bool         m_dmrOVCM;
+  DMR_OVCM_TYPES m_dmrOVCM;
 
   bool          m_fusionEnabled;
   bool          m_fusionLowDeviation;
