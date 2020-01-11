@@ -328,6 +328,14 @@ void CTFTSurenoo::clearCWInt()
 	setStatusLine(2, "IDLE");
 }
 
+void CTFTSurenoo::writeSvxlinkInt(int status, const char* message)
+{
+}
+
+void CTFTSurenoo::clearSvxlinkInt()
+{
+}
+
 void CTFTSurenoo::close()
 {
 	delete[] m_lineBuf;
